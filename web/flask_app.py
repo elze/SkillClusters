@@ -14,6 +14,8 @@ from flask.ext.admin.contrib.sqla import filters, ModelView
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy import Float
+from sqlalchemy.sql.expression import cast
 
 import pprint
 
@@ -38,7 +40,7 @@ class SkillPair(db.Model):
     ratio = db.column_property(
         #db.select([Decimal(number_of_times) / Decimal(SkillPostCounter.number_of_postings)]).\
 	#db.select([SkillPostCounter.number_of_postings / number_of_times]).\
-	db.select([number_of_times / SkillPostCounter.number_of_postings]).\
+	db.select([cast(number_of_times, Float) / cast(SkillPostCounter.number_of_postings, Float)]).\
             where(SkillPostCounter.skill_term==primary_term).\
             correlate_except(SkillPostCounter)
     )
