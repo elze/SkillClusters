@@ -1,11 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="skillclusterApp">
 <head>
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
- <title>SkillClusters with Angular</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/angular.min.js"></script>
+    <title>SkillClusters with Angular</title>
 </head>
 
-<body>
- <h2>Welcome to SkillClusters!</h2>
+<body ng-controller="MainController">
+<h2>{{ title }}</h2>
+
+<div class="row">
+    <div class="col-md-10">
+        <ul>
+            <li ng-repeat="skill in skills_mock">
+                {{ skill.primary_term }}
+            </li>
+        </ul>
+    </div>
+</div>
+<!-- Modules -->
+<script src="js/app.js"></script>
+<!-- Controller -->
+<script src="js/controller.js"></script>
 </body>
 </html>
