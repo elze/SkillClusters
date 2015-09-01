@@ -17,6 +17,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Float, Numeric
 from sqlalchemy.sql.expression import cast
 
+import json
+
 import pprint
 
 db = SQLAlchemy(app)
@@ -53,8 +55,14 @@ class SkillPair(db.Model):
 class SkillView(ModelView):
     #column_select_related_list = ('primary_term', 'secondary_term', 'ratio')
     list_template = 'listCustom.html'
+    column_labels = dict(primary_term='Primary Term', secondary_term='Associated Term', number_of_times='Number of times', ratio='Ratio')
+    column_descriptions = dict(number_of_times='Number of times associated term appears in a job listing with the primary term', ratio='Fraction of Primary Term job listings that have Associated Term in them')
     column_searchable_list = ("primary_term",)
     column_filters = ('primary_term',)
+
+    can_create = False
+    can_edit = False
+    can_delete = False
 
     def __init__(self, session, **kwargs):
         # You can pass name and other parameters if you want to
