@@ -1,8 +1,9 @@
+.row {
+    height: 700px;
+}
+
 .primary {
     list-style-type: none;
-}
-.second {
-
 }
 #searchbar {
     margin-right: 10%;
