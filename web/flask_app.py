@@ -33,10 +33,10 @@ def skill_pair_default(o):
 
 app.config.from_pyfile('settings.cfg')
 
-from wtforms import validators
+#from wtforms import validators
 
 from flask.ext import admin
-from flask.ext.admin.contrib import sqla
+#from flask.ext.admin.contrib import sqla
 from flask.ext.admin.contrib.sqla import filters, ModelView
 
 from sqlalchemy import ForeignKey
