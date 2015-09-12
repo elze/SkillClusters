@@ -1,14 +1,41 @@
+body {
+    font-family: "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+}
+
+h1 {
+    text-align: center;
+    font-size: 50px;
+}
+
+h4 {
+    line-height: 120%;
+}
+
+.headline {
+    width: 800px;
+    margin-left: 30%;
+    margin-right: 35%;
+}
+
 .row {
     height: 700px;
+}
+
+.mainContent {
+    height: 700px;
+    overflow: scroll;
+    margin: 1% 5% 10%;
 }
 
 .primary {
     list-style-type: none;
 }
+
 #searchbar {
-    
+
     text-align: right;
 }
+
 #smBtn {
     text-align: justify;
 
