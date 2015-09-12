@@ -22,18 +22,12 @@ def json_serial(obj):
         return serial
     return str(obj)
 
-def remove_garbage(obj):
-    serialized = {}
-    for k, v in obj.__dict__.iteritems():
-	if k is not '_sa_instance_state':
-	    serialized[k] = str(v)
-    return serialized
 
 def skill_pair_default(o):
     if isinstance(o, SkillPair):    
-	return dict(secondary_term=o.secondary_term,
-		number_of_times=o.number_of_times,
-		ratio=str(o.ratio))
+		return dict(secondary_term=o.secondary_term,
+			number_of_times=o.number_of_times,
+			ratio=str(o.ratio))
 
 
 app.config.from_pyfile('settings.cfg')
