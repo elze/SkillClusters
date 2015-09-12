@@ -15,8 +15,19 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
                 var skill = $scope.skills[i];
                 $scope.secondarySkillStyle[i] = [];
                 for (var j = 0; j < skill.associated_terms.length; j++) {
-                    var width = skill.associated_terms[j].ratio * 1000;
-                    $scope.secondarySkillStyle[i][j] = "width: " + width + "px; color: #C2FFC2;";
+		  var width = skill.associated_terms[j].ratio * 7000;
+		  var remainderWidth = width;
+		  var previousRemainderWidth = remainderWidth;
+		  var height = 30;
+		  while (remainderWidth > 500) {
+		    previousRemainderWidth = remainderWidth;
+		    remainderWidth = remainderWidth - 500;
+		    height = height + 30;
+		  }
+		  previousRemainderWidth = previousRemainderWidth + "px";
+		  height = height + "px";
+		  
+		  $scope.secondarySkillStyle[i][j] = {'width': previousRemainderWidth, 'height': height, 'background-color': '#C2FFC2', 'margin':'5px 0px', 'text-align': 'center', 'vertical-align': 'middle' };
                 }
             }
 
