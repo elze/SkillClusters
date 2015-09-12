@@ -15,6 +15,6 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
 
         });
     $scope.setShowAssociatedSkills = function (i) {
-        $scope.showAssociatedSkills[i] = true;
+      $scope.showAssociatedSkills[i] = !$scope.showAssociatedSkills[i];
     }
 }]);
