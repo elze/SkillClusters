@@ -10,15 +10,6 @@
 </head>
 
 <body ng-controller="MainController">
-<<<<<<< HEAD
-
-<h2>{{ title }}</h2>
-	<p>This application parses software developer job ads and determines, for each technical skill keyword (e.g. Python, Java, C#, Javascript, etc) what other skills are most likely to go with it (e.g. for Python it would be Django, Flask, etc.) So when one is preparing for a software development interview, one could know what other areas they need to study to answer the most likely interview questions.</p>
-
-<!--Search Bar -->
- <form id="searchbar">
-        <input type="text" size="50px" ng-model="myController.myTextInput" ng-change="callBackend()" placeholder="Search" required>
-=======
 <h1 style="text-align: center; font-size: 50px; ">{{ title }}</h1>
 	<div style="width:800px; margin-left:30%; margin-right:35%">
 		<h4 style="line-height: 120%">This application parses software developer job ads and determines, for each technical skill keyword (e.g. Python, Java, C#, Javascript, etc) 
@@ -27,7 +18,6 @@
 		 <!--Search Bar -->
 		 <form id="searchbar">
         <input type="text" size="100px" ng-model="myController.myTextInput" ng-change="callBackend()" placeholder="Search" required>
->>>>>>> d33d7d19ab14a597b6d5112e75f075933f7b8992
         <input type="button" value="Search">
  </form>
 	</div>
@@ -44,7 +34,7 @@
 
                     <div ng-show="showAssociatedSkills[$index]">
                     <span class="second" ng-repeat="secondary_skill in skill.associated_terms">
-                        <span id="smBtn" class="btn btn-sm" ng-style="secondarySkillStyle[]">{{ secondary_skill.secondary_term }}</span>
+                        <span id="smBtn" class="btn btn-sm" ng-style="secondarySkillStyle[$parent.$index][$index]">{{ secondary_skill.secondary_term }}</span>
                     </span>
                     </div><br><br>
                 </li>
