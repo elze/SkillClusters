@@ -11,6 +11,12 @@
 <body ng-controller="MainController">
 <h2>{{ title }}</h2>
 
+ <form id="searchbar">
+        <input type="text" ng-model="myController.myTextInput" ng-change="callBackend()" placeholder="Search" required>
+        <input type="button" value="Search">
+            
+ </form>
+
 <div class="row">
     <div class="col-md-10">
         <ul>
