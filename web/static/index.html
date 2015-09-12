@@ -11,9 +11,11 @@
 
 <body ng-controller="MainController">
 <h2>{{ title }}</h2>
+	<p>This application parses software developer job ads and determines, for each technical skill keyword (e.g. Python, Java, C#, Javascript, etc) what other skills are most likely to go with it (e.g. for Python it would be Django, Flask, etc.) So when one is preparing for a software development interview, one could know what other areas they need to study to answer the most likely interview questions.</p>
+
 <!--Search Bar -->
  <form id="searchbar">
-        <input type="text" ng-model="myController.myTextInput" ng-change="callBackend()" placeholder="Search" required>
+        <input type="text" size="50px" ng-model="myController.myTextInput" ng-change="callBackend()" placeholder="Search" required>
         <input type="button" value="Search">
             
  </form>
@@ -28,7 +30,7 @@
 
                     <div ng-show="showAssociatedSkills[$index]">
                     <span class="second" ng-repeat="secondary_skill in skill.associated_terms">
-                        <span class="btn btn-sm" style="text-align: justify">{{ secondary_skill.secondary_term }}</span>
+                        <span id="smBtn" class="btn btn-sm">{{ secondary_skill.secondary_term }}</span>
                     </span>
                     </div><br><br>
                 </li>

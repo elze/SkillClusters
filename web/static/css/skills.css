@@ -4,3 +4,10 @@
 .second {
 
 }
+#searchbar {
+    margin-right: 10%;
+    text-align: right;
+}
+#smBtn {
+    text-align: justify;
+}
