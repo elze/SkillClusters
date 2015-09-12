@@ -10,20 +10,25 @@
 </head>
 
 <body ng-controller="MainController">
-<h2>{{ title }}</h2>
-	<p>This application parses software developer job ads and determines, for each technical skill keyword (e.g. Python, Java, C#, Javascript, etc) what other skills are most likely to go with it (e.g. for Python it would be Django, Flask, etc.) So when one is preparing for a software development interview, one could know what other areas they need to study to answer the most likely interview questions.</p>
-
-<!--Search Bar -->
- <form id="searchbar">
-        <input type="text" size="50px" ng-model="myController.myTextInput" ng-change="callBackend()" placeholder="Search" required>
+<h1 style="text-align: center; font-size: 50px; ">{{ title }}</h1>
+	<div style="width:800px; margin-left:30%; margin-right:35%">
+		<h4 style="line-height: 120%">This application parses software developer job ads and determines, for each technical skill keyword (e.g. Python, Java, C#, Javascript, etc) 
+		what other skills are most likely to go with it (e.g. for Python it would be Django, Flask, etc.) So when one is preparing for a software development interview,
+		one could know what other areas they need to study to answer the most likely interview questions.</h4>
+		 <!--Search Bar -->
+		 <form id="searchbar">
+        <input type="text" size="100px" ng-model="myController.myTextInput" ng-change="callBackend()" placeholder="Search" required>
         <input type="button" value="Search">
             
  </form>
+	</div>
 
-<div class="row">
-    <div class="col-md-8">
-        <ul>
-            <div ng-repeat="skill in skills">
+
+
+<div style="height: 700px; overflow: scroll; margin-left: 5%; margin-right:5%; margin:bottom:10%; margin-top:1%">
+    <div >
+        <ul >
+            <div ng-repeat="skill in skills" >
                 <li class="primary">
                     <a class="btn btn-info btn-md" href="#"
                        ng-click="setShowAssociatedSkills($index)">{{ skill.primary_term }}</a>
