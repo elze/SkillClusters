@@ -4,13 +4,14 @@
     <!-- <link rel="stylesheet" href="css/bootstrap.min.css"> -->
     <!-- <script src="js/angular.min.js"></script> -->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/skills.css"/>
     <script src="http://code.angularjs.org/1.3.18/angular.js"></script>
     <title>SkillClusters with Angular</title>
 </head>
 
 <body ng-controller="MainController">
 <h2>{{ title }}</h2>
-
+<!--Search Bar -->
  <form id="searchbar">
         <input type="text" ng-model="myController.myTextInput" ng-change="callBackend()" placeholder="Search" required>
         <input type="button" value="Search">
@@ -18,18 +19,18 @@
  </form>
 
 <div class="row">
-    <div class="col-md-10">
+    <div class="col-md-8">
         <ul>
             <div ng-repeat="skill in skills">
-                <li style="list-style-type: none; display: inline;">
-                    <a class="btn btn-primary" href="#"
+                <li class="primary">
+                    <a class="btn btn-info btn-md" href="#"
                        ng-click="setShowAssociatedSkills($index)">{{ skill.primary_term }}</a>
 
                     <div ng-show="showAssociatedSkills[$index]">
-                    <span ng-repeat="secondary_skill in skill.associated_terms">
-                        <span>{{ secondary_skill.secondary_term }}</span>
+                    <span class="second" ng-repeat="secondary_skill in skill.associated_terms">
+                        <span class="btn btn-sm" style="text-align: justify">{{ secondary_skill.secondary_term }}</span>
                     </span>
-                    </div>
+                    </div><br><br>
                 </li>
             </div>
         </ul>
