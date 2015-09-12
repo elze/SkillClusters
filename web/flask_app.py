@@ -142,7 +142,42 @@ def skills():
     skillsJsonString = json.dumps(skills_dictionary, sort_keys=True, default=skill_pair_default)
     return skillsJsonString
 
+@app.route('/skills/<primary_term>')
+def skillsByTerm(primaryTerm):
+    # This is not implemented yet: this is the same code as non-paginated skills
 
+    engine = db.engine
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    q = session.query(SkillPair).filter(SkillPair.primary_term.like("%primaryTerm%"))
+    skillPairs = q.order_by(SkillPair.primary_term.asc(), SkillPair.secondary_term.asc()).all()
+    primary_to_secondary = {}
+
+    skills_dictionary = []
+
+    for s in skillPairs:
+        primaryTerm = s.primary_term
+        if primaryTerm not in primary_to_secondary:
+            primary_to_secondary[primaryTerm] = []
+            associatedTerms = []
+            # associatedTerms.append(s)
+            this_skill_dictionary = dict(primary_term=primaryTerm, associated_terms=associatedTerms)
+            # skills_dictionary.append(dict(primary_term = primaryTerm, associated_terms = associatedTerms))
+            skills_dictionary.append(this_skill_dictionary)
+        this_skill_dictionary["associated_terms"].append(s)
+
+        # app.logger.debug(primaryTerm)
+        primary_to_secondary[primaryTerm].append(s)
+
+    # app.logger.debug('primary_terms = \n')
+    # app.logger.debug(primary_terms)
+
+    # skillsJsonString = json.dumps(primary_to_secondary, sort_keys=True, default=skill_pair_default)
+    skillsJsonString = json.dumps(skills_dictionary, sort_keys=True, default=skill_pair_default)
+    return skillsJsonString
+
+	
 @app.route('/skills/<int:pageNum>/<int:itemCount>')
 def skillsPage(pageNum, itemCount):
     # This is not implemented yet: this is the same code as non-paginated skills
