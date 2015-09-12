@@ -9,7 +9,8 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
             $scope.skills = result.data;
 
         });
-    $scope.setShowAssociatedSkills = function() {
-        $scope.showAssociatedSkills = true;
+    $scope.showAssociatedSkills = [];
+    $scope.setShowAssociatedSkills = function(i) {
+        $scope.showAssociatedSkills[i] = true;
     }
 }]);

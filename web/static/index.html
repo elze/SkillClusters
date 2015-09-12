@@ -16,7 +16,7 @@
         <ul>
 	<div ng-repeat="skill in skills">
             <li>
-                <a href="#" ng-click="setShowAssociatedSkills()">{{ skill.primary_term }}</a>
+                <a href="#" ng-click="setShowAssociatedSkills($index)">{{ skill.primary_term }}</a>
 
                 <div ng-show="showAssociatedSkills" ng-repeat="secondary_skill in skill.associated_terms">
                     <p>{{ secondary_skill.secondary_term }}</p>

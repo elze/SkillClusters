@@ -26,17 +26,18 @@ def json_serial(obj):
 
 
 def skill_pair_default(o):
-    if isinstance(o, SkillPair):    
-		return dict(secondary_term=o.secondary_term,
-					number_of_times=o.number_of_times,
-					ratio=str(o.ratio))
+    if isinstance(o, SkillPair):
+        return dict(secondary_term=o.secondary_term,
+                    number_of_times=o.number_of_times,
+                    ratio=str(o.ratio))
+
 
 app.config.from_pyfile('settings.cfg')
 
-#from wtforms import validators
+# from wtforms import validators
 
 from flask.ext import admin
-#from flask.ext.admin.contrib import sqla
+# from flask.ext.admin.contrib import sqla
 from flask.ext.admin.contrib.sqla import filters, ModelView
 
 from sqlalchemy import ForeignKey
