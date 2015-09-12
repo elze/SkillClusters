@@ -14,10 +14,14 @@
 <div class="row">
     <div class="col-md-10">
         <ul>
-            <li ng-repeat="skill in skills_mock">
-                {{ skill.primary_term }}
+            <li ng-repeat="skill in skills">
+                <a href="#" ng-click="setShowAssociatedSkills()">{{ skill.primary_term }}</a>
             </li>
         </ul>
+    </div>
+    <div ng-show="showAssociatedSkills" ng-repeat="skill in skills">
+        <p>{{ skill.secondary_term }}</p>
+
     </div>
 </div>
 <!-- Modules -->
