@@ -19,7 +19,6 @@
 		 <form id="searchbar">
         <input type="text" size="100px" ng-model="myController.myTextInput" ng-change="callBackend()" placeholder="Search" required>
         <input type="button" value="Search">
-            
  </form>
 	</div>
 
@@ -35,7 +34,7 @@
 
                     <div ng-show="showAssociatedSkills[$index]">
                     <span class="second" ng-repeat="secondary_skill in skill.associated_terms">
-                        <span id="smBtn" class="btn btn-sm">{{ secondary_skill.secondary_term }}</span>
+                        <span id="smBtn" class="btn btn-sm" ng-style="secondarySkillStyle[$parent.$index][$index]">{{ secondary_skill.secondary_term }}</span>
                     </span>
                     </div><br><br>
                 </li>

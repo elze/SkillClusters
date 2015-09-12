@@ -1,8 +1,9 @@
+.row {
+    height: 700px;
+}
+
 .primary {
     list-style-type: none;
-}
-.second {
-
 }
 #searchbar {
     
@@ -10,4 +11,5 @@
 }
 #smBtn {
     text-align: justify;
+
 }
