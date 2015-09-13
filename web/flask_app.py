@@ -115,7 +115,7 @@ def skills():
     session = Session()
     q = session.query(SkillPair)
     # skillPairs = q.limit(100).all()
-    skillPairs = q.order_by(SkillPair.primary_term.asc(), SkillPair.secondary_term.asc()).all()
+    skillPairs = q.order_by(SkillPair.primary_term.asc(), SkillPair.ratio.asc()).all()
 
     primary_to_secondary = {}
 
