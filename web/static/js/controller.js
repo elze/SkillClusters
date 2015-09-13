@@ -61,11 +61,7 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
       zeroBasedCurrentPage = newPage-1;
   };
 
-  function getResultsPage(pageNumber) {
-    $http.get('http://127.0.0.1:5000/skills/' + pageNumber + '/' + $scope.primarySkillsPerPage)
-        .then(function (result) {
-            $scope.skills = result.data;
-            $scope.skills_length = result.data.length;
+  function populateData() {
             for (var i = 0; i < $scope.skills_length; i++) {
                 $scope.showAssociatedSkills[i] = false;
                 var skill = $scope.skills[i];
@@ -116,6 +112,14 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
 		  $scope.secondarySkillStyle[i][j] = {'width': computedSideX, 'height': computedSideY, 'background-color': boxColor, 'margin':'5px 0px', 'text-align': 'center', 'fontSize': fontSize, 'word-break': wordBreak };
                 }
             }
+  };
+
+  function getResultsPage(pageNumber) {
+    $http.get('http://127.0.0.1:5000/skills/' + pageNumber + '/' + $scope.primarySkillsPerPage)
+        .then(function (result) {
+            $scope.skills = result.data;
+            $scope.skills_length = result.data.length;
+	    populateData();
 
         });
   };
@@ -128,8 +132,14 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
 	  delete $scope.checkboxModels[key];
 	  }
       ********/
-      getResultsPage(newPage);
-      zeroBasedCurrentPage = newPage-1;
+
+    $http.get('http://127.0.0.1:5000/skills/' + searchTerm)
+        .then(function (result) {
+            $scope.skills = result.data;
+            $scope.skills_length = result.data.length;
+	    populateData();
+
+        });
   };
 
 
