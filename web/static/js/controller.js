@@ -9,7 +9,45 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
 
     secondaryBoxColors = ['#D6FFEB', '#C2FFE0', '#ADFFD6', '#99FFCC', '#7ACCA3', '#5C997A', '#3D6652'];
 
-    $http.get('http://127.0.0.1:5000/skills')
+    $scope.primarySkillsPerPage = 20; // this should match however many results your API puts on one page
+    var zeroBasedCurrentPage = 0;
+
+    $http.get('http://127.0.0.1:5000/primary_skills_count')
+        .then(function (result) {
+	    $scope.primarySkillsCount = result.data.Count;
+	    $scope.numberOfPages = Math.floor($scope.primarySkillsCount / $scope.primarySkillsPerPage);
+	    if ($scope.primarySkillsCount % $scope.primarySkillsPerPage != 0) {
+	      $scope.numberOfPages++;
+	    }
+
+	    $scope.pageNumbers = [];
+	    for (var pageIndex = 0; pageIndex < $scope.numberOfPages; pageIndex++) {
+	      $scope.pageNumbers[pageIndex] = pageIndex + 1;
+	    }
+
+	  });
+
+
+    getResultsPage(1);
+  
+    $scope.pagination = {
+    current: 1
+    };
+
+    $scope.pageChanged = function(newPage) {
+      console.log('Skills page changed to ' + newPage);
+      /***
+	  for (var key in $scope.checkboxModels) {
+	  console.log("pageChanged: deleting key = " + key);
+	  delete $scope.checkboxModels[key];
+	  }
+      ********/
+      getResultsPage(newPage);
+      zeroBasedCurrentPage = newPage-1;
+  };
+
+  function getResultsPage(pageNumber) {
+    $http.get('http://127.0.0.1:5000/skills/' + pageNumber + '/' + $scope.primarySkillsPerPage)
         .then(function (result) {
             $scope.skills = result.data;
             $scope.skills_length = result.data.length;
@@ -171,7 +209,10 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
             }
 
         });
-    $scope.setShowAssociatedSkills = function (i) {
-        $scope.showAssociatedSkills[i] = !$scope.showAssociatedSkills[i];
-    }
+  };
+
+  $scope.setShowAssociatedSkills = function (i) {
+    $scope.showAssociatedSkills[i] = !$scope.showAssociatedSkills[i];
+  }
+
 }]);

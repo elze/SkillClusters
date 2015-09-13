@@ -178,8 +178,8 @@ def skillsByTerm(primaryTerm):
     return skillsJsonString
 
 	
-@app.route('/skills/<int:pageNum>/<int:itemCount>')
-def skillsPage(pageNum, itemCount):
+@app.route('/skills/<int:pageNum>/<int:itemsPerPage>')
+def skillsPage(pageNum, itemsPerPage):
     # This is not implemented yet: this is the same code as non-paginated skills
 
     engine = db.engine
@@ -188,33 +188,57 @@ def skillsPage(pageNum, itemCount):
     session = Session()
     q = session.query(SkillPair)
     # skillPairs = q.limit(100).all()
-    skillPairs = q.order_by(SkillPair.primary_term.asc(), SkillPair.secondary_term.asc()).all()
+    skillPairs = q.order_by(SkillPair.primary_term.asc(), SkillPair.ratio.asc()).all()
 
     primary_to_secondary = {}
 
-    skills_dictionary = []
-
+    skills_dictionaries = []
+    primary_skill_index = -1
+    current_primary_term = ''
+	
     for s in skillPairs:
         primaryTerm = s.primary_term
-        if primaryTerm not in primary_to_secondary:
-            primary_to_secondary[primaryTerm] = []
-            associatedTerms = []
-            # associatedTerms.append(s)
-            this_skill_dictionary = dict(primary_term=primaryTerm, associated_terms=associatedTerms)
-            # skills_dictionary.append(dict(primary_term = primaryTerm, associated_terms = associatedTerms))
-            skills_dictionary.append(this_skill_dictionary)
-        this_skill_dictionary["associated_terms"].append(s)
+        if primaryTerm != current_primary_term:
+	    current_primary_term = primaryTerm
+	    primary_skill_index = primary_skill_index + 1
+
+	    if (primary_skill_index >= (pageNum-1)*itemsPerPage) and (primary_skill_index < pageNum*itemsPerPage): 
+		associatedTerms = []
+		this_skill_dictionary = dict(primary_term=primaryTerm, associated_terms=associatedTerms)
+		skills_dictionaries.append(this_skill_dictionary)
+
+	if (primary_skill_index >= (pageNum-1)*itemsPerPage) and (primary_skill_index < pageNum*itemsPerPage): 
+	    this_skill_dictionary["associated_terms"].append(s)
 
         # app.logger.debug(primaryTerm)
-        primary_to_secondary[primaryTerm].append(s)
+        #primary_to_secondary[primaryTerm].append(s)
 
     # app.logger.debug('primary_terms = \n')
     # app.logger.debug(primary_terms)
 
+	# skillsRange = skills_dictionaries[(pageNum-1)*itemsPerPage:pageNum*itemsPerPage]
+	
+	#skillsRange = [];
+	#for ind, sd in enumerate(skills_dictionaries):
+	#	if (ind >= (pageNum-1)*itemsPerPage) and (ind < pageNum*itemsPerPage): 
+	#		skillsRange.append(sd)
+		
+	
     # skillsJsonString = json.dumps(primary_to_secondary, sort_keys=True, default=skill_pair_default)
-    skillsJsonString = json.dumps(skills_dictionary, sort_keys=True, default=skill_pair_default)
+    skillsJsonString = json.dumps(skills_dictionaries, sort_keys=True, default=skill_pair_default)
+	#skillsJsonString = json.dumps(skillsRange, sort_keys=True, default=skill_pair_default)
     return skillsJsonString
 
+@app.route('/primary_skills_count')
+def primary_skills_count():
+    engine = db.engine
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    q = session.query(SkillPostCounter)
+    primarySkillsCount = len(q.all())
+    countJsonString = json.dumps({"Count": primarySkillsCount})
+    return countJsonString
 
 @app.route('/')
 def hello_world():
