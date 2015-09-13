@@ -14,13 +14,6 @@
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
 
-        <form id="searchbar" class="navbar-form navbar-right" role="search">
-            <div class="form-group">
-                <input type="text" class="form-control" ng-model="searchTerm" placeholder="Search" required>
-                <input type="submit" class="btn btn-default" value="Search" ng-click="searchByTerm(searchTerm)">
-            </div>
-        </form>
-
  	<form id="pagination">
  	<select ng-model="newPageNum">
             <option ng-repeat="pageNum in pageNumbers" value="{{ pageNum }}">{{ pageNum }}</option>
