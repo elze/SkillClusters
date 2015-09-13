@@ -1,6 +1,20 @@
 /**
  * Created by Cherie Tabb on 8/30/2015.
  */
+
+app.directive('a', function() {
+    return {
+        restrict: 'E',
+        link: function(scope, elem, attrs) {
+            if(attrs.ngClick || attrs.href === '' || attrs.href === '#'){
+                elem.on('click', function(e){
+                    e.preventDefault();
+                });
+            }
+        }
+   };
+});
+
 app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
     $scope.title = 'Welcome to SkillClusters!';
     $scope.showAssociatedSkills = [];
@@ -9,7 +23,7 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
 
     secondaryBoxColors = ['#D6FFEB', '#C2FFE0', '#ADFFD6', '#99FFCC', '#7ACCA3', '#5C997A', '#3D6652'];
 
-    $scope.primarySkillsPerPage = 20; // this should match however many results your API puts on one page
+    $scope.primarySkillsPerPage = 5; // this should match however many results your API puts on one page
     var zeroBasedCurrentPage = 0;
 
     $http.get('http://127.0.0.1:5000/primary_skills_count')

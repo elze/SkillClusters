@@ -52,8 +52,8 @@
         <ul>
             <div ng-repeat="skill in skills">
                 <li class="primary">
-                    <a class="btn btn-info btn-md" href="#"
-                       ng-click="setShowAssociatedSkills($index)">{{ skill.primary_term }}</a>
+                    <a class="btn btn-info btn-md" href="none"
+                       ng-click="setShowAssociatedSkills($index); $event.stopPropagation()">{{ skill.primary_term }}</a>
 
                     <div ng-show="showAssociatedSkills[$index]">
                     <span class="second" ng-repeat="secondary_skill in skill.associated_terms">
