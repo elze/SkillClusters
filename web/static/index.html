@@ -16,9 +16,8 @@
 
         <form id="searchbar" class="navbar-form navbar-right" role="search">
             <div class="form-group">
-                <input type="text" class="form-control" ng-model="myController.myTextInput" ng-change="callBackend()"
-                       placeholder="Search" required>
-                <input type="submit" class="btn btn-default" value="Search">
+                <input type="text" class="form-control" ng-model="searchTerm" placeholder="Search" required>
+                <input type="submit" class="btn btn-default" value="Search" ng-click="searchByTerm(searchTerm)">
             </div>
         </form>
 

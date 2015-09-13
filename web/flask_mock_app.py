@@ -1,6 +1,7 @@
 # This also works on Python Anywhere
 
 import json
+import re
 
 from flask import Flask
 app = Flask(__name__)
@@ -39,6 +40,11 @@ def skillsPage(pageNum, itemsPerPage):
     skillsJsonString = json.dumps(skillsRange, sort_keys=True)
     return skillsJsonString
 
+@app.route('/skills/<search_term>')
+def skillsByTerm(search_term):
+    filtered_array = filter(lambda s: re.search(search_term + '.*', s["primary_term"]), mock_skills_array)
+    skillsJsonString = json.dumps(filtered_array)
+    return skillsJsonString
 
 @app.route('/primary_skills_count')
 def primary_skills_count():
@@ -51,6 +57,7 @@ def primary_skills_count():
 def skills_mock():
     skillsJsonString = json.dumps([mock_skills_array])
     return skillsJsonString
+
 
 if __name__ == '__main__':
     # Start app

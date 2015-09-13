@@ -15,16 +15,6 @@ file_handler = FileHandler("skillClustersLog20150909.txt")
 file_handler.setLevel(logging.WARNING)
 app.logger.addHandler(file_handler)
 
-
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
-
-    if isinstance(obj, datetime):
-        serial = obj.isoformat()
-        return serial
-    return str(obj)
-
-
 def skill_pair_default(o):
     if isinstance(o, SkillPair):
         return dict(secondary_term=o.secondary_term,
@@ -34,7 +24,6 @@ def skill_pair_default(o):
 
 app.config.from_pyfile('settings.cfg')
 
-# from wtforms import validators
 
 from flask.ext import admin
 # from flask.ext.admin.contrib import sqla
@@ -107,6 +96,24 @@ class SkillView(ModelView):
         super(SkillView, self).__init__(SkillPair, session, **kwargs)
 
 
+def buildSkillsDictionaries(skillPairs):
+    primary_to_secondary = {}
+    skills_dictionaries = []
+
+    for s in skillPairs:
+        primaryTerm = s.primary_term
+        if primaryTerm not in primary_to_secondary:
+            primary_to_secondary[primaryTerm] = []
+            associatedTerms = []
+            this_skill_dictionary = dict(primary_term=primaryTerm, associated_terms=associatedTerms)
+            skills_dictionaries.append(this_skill_dictionary)
+        this_skill_dictionary["associated_terms"].append(s)
+
+        # app.logger.debug(primaryTerm)
+        primary_to_secondary[primaryTerm].append(s)
+
+    return skills_dictionaries
+
 @app.route('/skills')
 def skills():
     engine = db.engine
@@ -117,32 +124,12 @@ def skills():
     # skillPairs = q.limit(100).all()
     skillPairs = q.order_by(SkillPair.primary_term.asc(), SkillPair.ratio.asc()).all()
 
-    primary_to_secondary = {}
+    skills_dictionaries = buildSkillsDictionaries(skillPairs)
 
-    skills_dictionary = []
-
-    for s in skillPairs:
-        primaryTerm = s.primary_term
-        if primaryTerm not in primary_to_secondary:
-            primary_to_secondary[primaryTerm] = []
-            associatedTerms = []
-            # associatedTerms.append(s)
-            this_skill_dictionary = dict(primary_term=primaryTerm, associated_terms=associatedTerms)
-            # skills_dictionary.append(dict(primary_term = primaryTerm, associated_terms = associatedTerms))
-            skills_dictionary.append(this_skill_dictionary)
-        this_skill_dictionary["associated_terms"].append(s)
-
-        # app.logger.debug(primaryTerm)
-        primary_to_secondary[primaryTerm].append(s)
-
-    # app.logger.debug('primary_terms = \n')
-    # app.logger.debug(primary_terms)
-
-    # skillsJsonString = json.dumps(primary_to_secondary, sort_keys=True, default=skill_pair_default)
-    skillsJsonString = json.dumps(skills_dictionary, sort_keys=True, default=skill_pair_default)
+    skillsJsonString = json.dumps(skills_dictionaries, sort_keys=True, default=skill_pair_default)
     return skillsJsonString
 
-@app.route('/skills/<primary_term>')
+@app.route('/skills/<primaryTerm>')
 def skillsByTerm(primaryTerm):
     # This is not implemented yet: this is the same code as non-paginated skills
 
@@ -150,37 +137,22 @@ def skillsByTerm(primaryTerm):
 
     Session = sessionmaker(bind=engine)
     session = Session()
-    q = session.query(SkillPair).filter(SkillPair.primary_term.like("%primaryTerm%"))
-    skillPairs = q.order_by(SkillPair.primary_term.asc(), SkillPair.secondary_term.asc()).all()
-    primary_to_secondary = {}
+    q = session.query(SkillPair).filter(SkillPair.primary_term.like("%" + primaryTerm + "%"))
+    skillPairs = q.order_by(SkillPair.primary_term.asc(), SkillPair.ratio.asc()).all()
 
-    skills_dictionary = []
+    skills_dictionaries = buildSkillsDictionaries(skillPairs)
 
-    for s in skillPairs:
-        primaryTerm = s.primary_term
-        if primaryTerm not in primary_to_secondary:
-            primary_to_secondary[primaryTerm] = []
-            associatedTerms = []
-            # associatedTerms.append(s)
-            this_skill_dictionary = dict(primary_term=primaryTerm, associated_terms=associatedTerms)
-            # skills_dictionary.append(dict(primary_term = primaryTerm, associated_terms = associatedTerms))
-            skills_dictionary.append(this_skill_dictionary)
-        this_skill_dictionary["associated_terms"].append(s)
 
-        # app.logger.debug(primaryTerm)
-        primary_to_secondary[primaryTerm].append(s)
-
-    # app.logger.debug('primary_terms = \n')
-    # app.logger.debug(primary_terms)
-
-    # skillsJsonString = json.dumps(primary_to_secondary, sort_keys=True, default=skill_pair_default)
-    skillsJsonString = json.dumps(skills_dictionary, sort_keys=True, default=skill_pair_default)
+    skillsJsonString = json.dumps(skills_dictionaries, sort_keys=True, default=skill_pair_default)
     return skillsJsonString
 
 	
 @app.route('/skills/<int:pageNum>/<int:itemsPerPage>')
 def skillsPage(pageNum, itemsPerPage):
-    # This is not implemented yet: this is the same code as non-paginated skills
+    # In this method we are not using "range" function to get a range of skills_dictionaries
+    # between certain indices, because I tried that and range function makes the
+    # method impossibly slow. So we are building skills_dictionaries to contain
+    # just those primary_terms that fall between certain indices.
 
     engine = db.engine
 
@@ -216,17 +188,7 @@ def skillsPage(pageNum, itemsPerPage):
     # app.logger.debug('primary_terms = \n')
     # app.logger.debug(primary_terms)
 
-	# skillsRange = skills_dictionaries[(pageNum-1)*itemsPerPage:pageNum*itemsPerPage]
-	
-	#skillsRange = [];
-	#for ind, sd in enumerate(skills_dictionaries):
-	#	if (ind >= (pageNum-1)*itemsPerPage) and (ind < pageNum*itemsPerPage): 
-	#		skillsRange.append(sd)
-		
-	
-    # skillsJsonString = json.dumps(primary_to_secondary, sort_keys=True, default=skill_pair_default)
     skillsJsonString = json.dumps(skills_dictionaries, sort_keys=True, default=skill_pair_default)
-	#skillsJsonString = json.dumps(skillsRange, sort_keys=True, default=skill_pair_default)
     return skillsJsonString
 
 @app.route('/primary_skills_count')
