@@ -6,23 +6,22 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
+from flask import render_template
+
 app = Flask(__name__)
 
 import logging
 from logging import FileHandler
 
-file_handler = FileHandler("skillClustersLog20150909.txt")
-file_handler.setLevel(logging.WARNING)
-app.logger.addHandler(file_handler)
+import sys
+import os
 
-def skill_pair_default(o):
-    if isinstance(o, SkillPair):
-        return dict(secondary_term=o.secondary_term,
-                    number_of_times=o.number_of_times,
-                    ratio=str(o.ratio))
+currentPath = os.getcwd()
+(oneLevelUp, thisDirectory) = os.path.split(currentPath)
+sys.path.append(oneLevelUp)
 
 
-app.config.from_pyfile('settings.cfg')
+app.config.from_pyfile('../web_settings.cfg')
 
 
 from flask.ext import admin
@@ -34,50 +33,22 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Float, Numeric
 from sqlalchemy.sql.expression import cast
 
-from datetime import datetime
 import json
 
 import pprint
 
 db = SQLAlchemy(app)
 
+from sccommon.SkillPair import SkillPair
+from sccommon.SkillPostCounter import SkillPostCounter
 
-class SkillPostCounter(db.Model):
-    __tablename__ = 'skill_post_counters'
-    id = db.Column(db.Integer, primary_key=True)
-    skill_term = db.Column(db.String(140))
-    number_of_postings = db.Column(db.Float)
-
-    def __unicode__(self):
-        return self.skill_term
-
-
-class SkillPair(db.Model):
-    __tablename__ = 'skill_pairs'
-    id = db.Column(db.Integer, primary_key=True)
-    primary_term = db.Column(db.String(140))
-    secondary_term = db.Column(db.String(140))
-    number_of_times = db.Column(db.Integer)
-
-    ratio = db.column_property(
-        # db.select([Decimal(number_of_times) / Decimal(SkillPostCounter.number_of_postings)]).\
-        # db.select([SkillPostCounter.number_of_postings / number_of_times]).\
-        db.select(
-            [cast(cast(number_of_times, Float) / cast(SkillPostCounter.number_of_postings, Float), Numeric(7, 3))]). \
-            where(SkillPostCounter.skill_term == primary_term). \
-            correlate_except(SkillPostCounter)
-    )
-
-    def __init__(self, dictionary):
-        for k, v in dictionary.items():
-            setattr(self, k, v)
-
-    def __unicode__(self):
-        return self.primary_term
-
+def skill_pair_default(o):
+    if isinstance(o, SkillPair):
+        return dict(secondary_term=o.secondary_term,
+                    number_of_times=o.number_of_times,
+                    ratio=str(o.ratio))
 
 class SkillView(ModelView):
-    # column_select_related_list = ('primary_term', 'secondary_term', 'ratio')
     list_template = 'listCustom.html'
     column_labels = dict(primary_term='Primary Term', secondary_term='Associated Term',
                          number_of_times='Number of times', ratio='Ratio')
@@ -200,11 +171,13 @@ def primary_skills_count():
     q = session.query(SkillPostCounter)
     primarySkillsCount = len(q.all())
     countJsonString = json.dumps({"Count": primarySkillsCount})
+    app.logger.info("primary_skills_count(): Count = " + str(primarySkillsCount))
+    app.logger.info(sys.path)
     return countJsonString
 
 @app.route('/')
 def hello_world():
-    return '<a href="/admin/">Click me to get to Admin!</a>'
+    return render_template('hello.html')
 
 
 @app.route('/skills_mock/')
@@ -268,14 +241,16 @@ admin = admin.Admin(app, 'SkillCluster')
 
 # Add views
 admin.add_view(SkillView(db.session))
-# admin.add_view(PercentagesView(db.session))
 
 if __name__ == '__main__':
-    # Build a sample db on the fly, if one does not exist yet.
-    # app_dir = op.realpath(os.path.dirname(__file__))
-    # database_path = op.join(app_dir, app.config['DATABASE_FILE'])
-    # if not os.path.exists(database_path):
-    #    build_db()
+
+    file_handler = FileHandler("skillClustersLog20150909.txt")
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+
 
     # Start app
     app.run(debug=True)
+    #app.logger.debug(sys.path)
+    #currentPath = os.getcwd()
+    #app.logger.debug("os.getcwd() = " + os.getcwd())
