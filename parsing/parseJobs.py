@@ -6,6 +6,7 @@ import ConfigParser
 
 dbconfig = ConfigParser.RawConfigParser()
 dbconfig.read('db_postgres_settings.cfg')
+#dbconfig.read('db_mysql_settings.cfg')
 
 sqlalchemy_database_uri = dbconfig.get('database', 'SQLALCHEMY_DATABASE_URI')
 
@@ -43,7 +44,7 @@ from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
 session = Session()
 
-skillKeywords = ["AJAX", "Akka", "AMQP", "Android", "Angular", "AngularJS", "Ant", "ApacheMQ", "Artifactory", "ASP.NET",
+skillKeywords = ["AJAX", "Akka", "AMQP", "Android", "Angular", "AngularJS", "Ant", "Apache", "ApacheMQ", "Artifactory", "ASP.NET", "AWS",
 				 "Backbone", "BackboneJS", "Bootstrap", "BootstrapJS", "Bottle",
 				 "C++", "C#", "Cassandra", "Chef", "Clojure", "COBOL", "Cocoa", "CoffeeScript", "Cordova",
                  "CouchDB", "Couch", "CSLA", "CSS", "CSS3", "Crystal Reports",
@@ -61,8 +62,8 @@ skillKeywords = ["AJAX", "Akka", "AMQP", "Android", "Angular", "AngularJS", "Ant
 				 "Objective C", "Objective-C", "Oracle",
                  "Perl", "Phonegap", "Photoshop", "PHP", "PostGIS", "Postgres", "Python", "Puppet",
 				 "RabbitMQ", "RavenDB", "Raven", "RDBMS", "React.js", "ReactJS", "RESTful", "REST", "Ruby", "Ruby on Rails", "Rust",
-				 "Sass", "Scala", "Selenium", "Silverlight", "SOAP", "Sparx", "Sphinx", "Spring",
-				 "SQL", "SQL Server", "SSIS", "SSRS", "Struts", "Subversion", "SVN", "Symfony", "Swift",
+				 "S3", "Sass", "Scala", "Selenium", "Silverlight", "SOAP", "Sparx", "Sphinx", "Spring",
+				 "SQL", "SQL Server", "SSIS", "SSRS", "Struts", "Subversion", "SVN", "Sybase", "Symfony", "Swift",
 				 "Team Foundation Server", "TFS", "Telerik", "Teradata", "TransactSQL", "Transact SQL", "Transact-SQL", "TSQL", "T-SQL", "Typescript",
                  "Underscore", "UnderscoreJS", "UML", "UNIX",
 				 "VB.NET", "Visio", "Visual Basic", "Visual Studio",
@@ -138,7 +139,7 @@ for skillKeyword in skillsDictionary:
         skillpair.secondary_term = secondarySkillKeyword
         skillpair.number_of_times = secondarySkillCount
         session.add(skillpair)
-        #logging.debug(pprint.pformat(skillpair.__dict__))
+        logging.debug(pprint.pformat(skillpair.__dict__))
 
 session.commit()
 

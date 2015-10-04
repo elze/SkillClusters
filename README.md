@@ -28,7 +28,20 @@ pip install flask-admin
 pip install psycopg2
 
 
-3. Get the web_settings.cfg file from one of the contributors to this project, and place it in the SkillClusters top level directory . This configuration file will contain the configuration options for the Flask app, including the connection string the app needs for connecting to the database.
+3. You can connect your local instance of the app to a database on your machine, if you have one installed, or the one used by the app deployed at elze.pythonanywhere.com. (If the latter, ask one of the contributors of this project for these configuration parameters).
+
+In the file settings.cfg file replace the placeholders:
+
+username should be the database username,
+
+password should be the database password,
+
+hostname should be the database's host name (most likely localhost, if you are running it on your machine),
+
+port should be the port the database runs at, if not default (if it is the default, as is most likely the case, remove the [:port] part)
+
+database_name should be the database name
+
 
 4. Start the app: from a command prompt, run:
 
@@ -44,9 +57,25 @@ Getting the parsing program to run
 
 1. On command prompt, cd into the SkillClusters directory
 
-3. Get the files db_postgres_settings.cfg and import_settings.cfg file from one of the contributors to this project, and place it in the SkillClusters top level directory . Thes configuration files will contain the configuration options for the parsing program, including the connection string it needs for connecting to the database.
+2. Install Postgres database locally on your machine.
 
-3. From SkillClusters directory run the program like this:
+3. Run the queries in the create_tables_postgres.sql file to create the tables sc1_skill_post_counters and sc1_skill_pairs. 
+
+4. In the file db_postgres_settings.cfg replace the placeholders: 
+
+username should be your database username,
+
+password should be your database password,
+
+hostname should be your database's host name (most likely localhost, if you are running it on your machine),
+
+port should be the port your database runs at, if not default (if it is the default, as is most likely the case, remove the [:port] part)
+
+database_name should be your database name
+
+5. In the import_settings.cfg file, replace the "path/to/" placeholder with the path to your SkillClusters directory.
+
+6. From SkillClusters directory run the program like this:
 
 python -m parsing.parseJobs
 
