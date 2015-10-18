@@ -45,19 +45,19 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 skillKeywords = ["AJAX", "Akka", "AMQP", "Android", "Angular", "AngularJS", "Ant", "Apache", "ApacheMQ", "Artifactory", "ASP.NET", "AWS",
-				 "Backbone", "BackboneJS", "Bootstrap", "BootstrapJS", "Bottle",
+				 "Backbone", "BackboneJS", "Balsamiq", "Bootstrap", "BootstrapJS", "Bottle",
 				 "C++", "C#", "Cassandra", "Chef", "Clojure", "COBOL", "Cocoa", "CoffeeScript", "Cordova",
                  "CouchDB", "Couch", "CSLA", "CSS", "CSS3", "Crystal Reports",
-				 "Dart", "D3", "D3JS", "Delphi", "DevOps", "Django", "Dynamo", "DynamoDB",
-				 "Eclipse", "Elixir", "Elm", "Ember", "EmberJS", "Entity Framework", "Erlang", "ES6",
+				 "Dart", "D3", "D3JS", "Delphi", "DevExpress", "DevOps", "Django", "Dynamo", "DynamoDB",
+				 "Eclipse", "Elixir", "Elm", "Ember", "EmberJS", "Entity Framework", "Erlang", "ES6", "ExpressionEngine",
 				 "Flash", "Flask", "Fortran", "FoxPro", "Haskell", "IIS",
 				 "GIS", "Git", "Golang", "Gradle", "Gulp",
 				 "Hadoop", "Handlebars", "HandlebarsJS", "HBase", "Hibernate", "Hive", "HTML", "HTML5",
 				 "IntelliJ", "iOS",
-				 "J2EE", "Java", "Javascript", "JBOSS", "JCE", "JDBC", "Jenkins", "JMS", "JNDI", "JPA", "JQuery", "JSON", "JUnit",
+				 "J2EE", "Jasmine", "Java", "Javascript", "JBOSS", "JCE", "JDBC", "Jenkins", "JMS", "JNDI", "JPA", "JQuery", "JSON", "JUnit",
 				 "Kafka", "Kinesis", "Knockout", "KnockoutJS", "Koa", "KoaJS",
 				 "Labview", "LAMP", "Lua", "Linux",
-				 "Magento", "Maven", "Memcached", "Mercurial", "Mongo", "MongoDB", "MSSQL", "MS SQL", "MVC", "Mustache", "MyBatis", "MySQL",
+				 "Magento", "Maven", "Memcached", "Mercurial", "Mongo", "MongoDB", "MSBI", "MSSQL", "MS SQL", "MVC", "Mustache", "MyBatis", "MySQL",
 				 ".NET", "NHibernate", "Node", "NodeJS", "Nose", "NoSQL", "NUnit",
 				 "Objective C", "Objective-C", "Oracle",
                  "Perl", "Phonegap", "Photoshop", "PHP", "PostGIS", "Postgres", "Python", "Puppet",
@@ -73,7 +73,7 @@ skillKeywords = ["AJAX", "Akka", "AMQP", "Android", "Angular", "AngularJS", "Ant
 
 synonymsDictionary = {'angularjs': 'angular', 'backbonejs': 'backbone', 'bootstrapjs': 'bootstrap', 'couchdb': 'couch',
                       'd3js': 'd3', 'dynamodb': 'dynamo', 'emberjs': 'ember', 'handlebarsjs': 'handlebars', 'knockoutjs': 'knockout', 'koajs': 'koa',
-                      'mongodb': 'mongo', 'mssql': 'sql server', 'ms sql': 'sql server', 'nodejs': 'node', 'pbjective c': 'pbjective-c',
+                      'mongodb': 'mongo', 'mssql': 'sql server', 'ms sql': 'sql server', 'nodejs': 'node', 'objective c': 'objective-c',
                       'ravendb': 'raven', 'reactjs': 'react.js', 'restful': 'rest', 'svn': 'subversion',
                       'tfs': 'team foundation server',
                       'transactsql': 't-sql', 'transact sql': 't-sql', 'transact-sql': 't-sql', 'tsql': 't-sql',
@@ -84,6 +84,14 @@ skillsDictionary = {}
 skillsPostCountsDict = {}
 
 matches = []
+
+############## TO DO ##############
+# Read all the records fom the skill_post_counters table;
+# Place them in the skillsPostCountsDict dictionary: skill_term will be the name, and number_of_postings will be the value
+# 
+#########################
+
+
 
 for jobFileName in listdir(importFilePath):
     jobFile = open(importFilePath + jobFileName, "r")
@@ -104,9 +112,18 @@ for jobFileName in listdir(importFilePath):
         if m1:
             if skillKeyword in skillsDictionary:
                 secondarySkillDict = skillsDictionary[skillKeyword]
-                skillsPostCountsDict[skillKeyword] = skillsPostCountsDict[skillKeyword] + 1
+                #skillsPostCountsDict[skillKeyword] = skillsPostCountsDict[skillKeyword] + 1
             else:
-                secondarySkillDict = {}
+		secondarySkillDict = {}
+		############# TO DO #########################
+		# For this skillKeyword, retrieve all the records from skill_pairs table
+		# where this skillKeyword is the primary_term;
+		# Populate secondarySkillDict with them
+		####################
+		
+	    if skillKeyword in skillsPostCountsDict:
+		skillsPostCountsDict[skillKeyword] = skillsPostCountsDict[skillKeyword] + 1
+	    else:
                 skillsPostCountsDict[skillKeyword] = 1
 
             for secondarySkillKeywordOrig in skillKeywords:
@@ -143,5 +160,8 @@ for skillKeyword in skillsDictionary:
 
 session.commit()
 
+################ TO DO #############
+# Move the processed job files from the "forImport" directory to the "imported" directory
+###############
 
 
