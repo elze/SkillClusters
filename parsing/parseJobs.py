@@ -60,9 +60,20 @@ matches = []
 # 
 #########################
 
+jobFileNames = []
+
+# This assumes that under importFilePath there are many directories containing job postings,
+# in other words, that the directory tree has a depth of 1. If that's not the case, the logic
+# below needs to be modified.
+
+for importFileDirectory in listdir(importFilePath):
+    print importFileDirectory
+    for jobFileName in listdir(importFilePath + importFileDirectory):
+	jobFileNames.append(importFileDirectory + "/" + jobFileName)
 
 
-for jobFileName in listdir(importFilePath):
+#for jobFileName in listdir(importFilePath):
+for jobFileName in jobFileNames:
     jobFile = open(importFilePath + jobFileName, "r")
     jobDescriptionRaw = jobFile.read().lower()
     indEnNote = jobDescriptionRaw.find("<en-note>")
