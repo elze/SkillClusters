@@ -2,11 +2,12 @@ import sqlalchemy
 from os import listdir
 import logging
 
+
 import ConfigParser
 
 dbconfig = ConfigParser.RawConfigParser()
-dbconfig.read('db_postgres_settings.cfg')
-#dbconfig.read('db_mysql_settings.cfg')
+dbconfig.read('db_postgres_settings_my.cfg')
+#dbconfig.read('db_mysql_python_anywhere_settings.cfg')
 
 sqlalchemy_database_uri = dbconfig.get('database', 'SQLALCHEMY_DATABASE_URI')
 
@@ -44,40 +45,8 @@ from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
 session = Session()
 
-skillKeywords = ["AJAX", "Akka", "AMQP", "Android", "Angular", "AngularJS", "Ant", "Apache", "ApacheMQ", "Artifactory", "ASP.NET", "AWS",
-				 "Backbone", "BackboneJS", "Balsamiq", "Bootstrap", "BootstrapJS", "Bottle",
-				 "C++", "C#", "Cassandra", "Chef", "Clojure", "COBOL", "Cocoa", "CoffeeScript", "Cordova",
-                 "CouchDB", "Couch", "CSLA", "CSS", "CSS3", "Crystal Reports",
-				 "Dart", "D3", "D3JS", "Delphi", "DevExpress", "DevOps", "Django", "Dynamo", "DynamoDB",
-				 "Eclipse", "Elixir", "Elm", "Ember", "EmberJS", "Entity Framework", "Erlang", "ES6", "ExpressionEngine",
-				 "Flash", "Flask", "Fortran", "FoxPro", "Haskell", "IIS",
-				 "GIS", "Git", "Golang", "Gradle", "Gulp",
-				 "Hadoop", "Handlebars", "HandlebarsJS", "HBase", "Hibernate", "Hive", "HTML", "HTML5",
-				 "IntelliJ", "iOS",
-				 "J2EE", "Jasmine", "Java", "Javascript", "JBOSS", "JCE", "JDBC", "Jenkins", "JMS", "JNDI", "JPA", "JQuery", "JSON", "JUnit",
-				 "Kafka", "Kinesis", "Knockout", "KnockoutJS", "Koa", "KoaJS",
-				 "Labview", "LAMP", "Lua", "Linux",
-				 "Magento", "Maven", "Memcached", "Mercurial", "Mongo", "MongoDB", "MSBI", "MSSQL", "MS SQL", "MVC", "Mustache", "MyBatis", "MySQL",
-				 ".NET", "NHibernate", "Node", "NodeJS", "Nose", "NoSQL", "NUnit",
-				 "Objective C", "Objective-C", "Oracle",
-                 "Perl", "Phonegap", "Photoshop", "PHP", "PostGIS", "Postgres", "Python", "Puppet",
-				 "RabbitMQ", "RavenDB", "Raven", "RDBMS", "React.js", "ReactJS", "RESTful", "REST", "Ruby", "Ruby on Rails", "Rust",
-				 "S3", "Sass", "Scala", "Selenium", "Silverlight", "SOAP", "Sparx", "Sphinx", "Spring",
-				 "SQL", "SQL Server", "SSIS", "SSRS", "Struts", "Subversion", "SVN", "Sybase", "Symfony", "Swift",
-				 "Team Foundation Server", "TFS", "Telerik", "Teradata", "TransactSQL", "Transact SQL", "Transact-SQL", "TSQL", "T-SQL", "Typescript",
-                 "Underscore", "UnderscoreJS", "UML", "UNIX",
-				 "VB.NET", "Visio", "Visual Basic", "Visual Studio",
-				 "WCF", "WebAPI", "Web API", "Web Services", "WPF", "XML", "xUnit", "Zend"]
-
-
-
-synonymsDictionary = {'angularjs': 'angular', 'backbonejs': 'backbone', 'bootstrapjs': 'bootstrap', 'couchdb': 'couch',
-                      'd3js': 'd3', 'dynamodb': 'dynamo', 'emberjs': 'ember', 'handlebarsjs': 'handlebars', 'knockoutjs': 'knockout', 'koajs': 'koa',
-                      'mongodb': 'mongo', 'mssql': 'sql server', 'ms sql': 'sql server', 'nodejs': 'node', 'objective c': 'objective-c',
-                      'ravendb': 'raven', 'reactjs': 'react.js', 'restful': 'rest', 'svn': 'subversion',
-                      'tfs': 'team foundation server',
-                      'transactsql': 't-sql', 'transact sql': 't-sql', 'transact-sql': 't-sql', 'tsql': 't-sql',
-                      'underscorejs': 'underscore', 'web api': 'webapi' }
+#import keywordsAndDictionary
+import keywordsWithSynonyms
 
 skillsDictionary = {}
 
@@ -99,53 +68,106 @@ for jobFileName in listdir(importFilePath):
     indEnNote = jobDescriptionRaw.find("<en-note>")
     jobDescription = jobDescriptionRaw[indEnNote:]
     #print importFilePath + jobFileName
-    #logging.debug(jobFileName)
+    logging.debug(jobFileName)
     #logging.debug(jobDescription)
-    #logging.debug("=====================")
-    for skillKeywordOrig in skillKeywords:
-        skillKeywordRaw = skillKeywordOrig.lower()
+    logging.debug("=====================")
+    #for skillKeywordOrig in keywordsAndDictionary.skillKeywords:
+    for skillKeywordObj in keywordsWithSynonyms.skillKeywords:
+	skillKeywordObjKeys = skillKeywordObj.keys()
+        #skillKeywordRaw = skillKeywordOrig.lower()
+	skillKeywordRaw = skillKeywordObjKeys[0]
         #print skillKeywordRaw + '\n'
-        skillKeyword = skillKeywordRaw
-        if skillKeywordRaw in synonymsDictionary:
-            skillKeyword = synonymsDictionary[skillKeywordRaw]
-        m1 = re.search('\W(' +  re.escape(skillKeyword) + ')\W', jobDescription)
-        if m1:
-            if skillKeyword in skillsDictionary:
-                secondarySkillDict = skillsDictionary[skillKeyword]
-                #skillsPostCountsDict[skillKeyword] = skillsPostCountsDict[skillKeyword] + 1
-            else:
-		secondarySkillDict = {}
+	#logging.debug(skillKeywordRaw)
+        skillKeyword = skillKeywordRaw.lower()
+	synonyms = [ skillKeyword ]
+	if skillKeywordObj[skillKeywordRaw]:
+	    synonyms.extend(skillKeywordObj[skillKeywordRaw])
+	synonyms = map(lambda x: x.lower(), synonyms)
+	
+	####
+        #if skillKeywordRaw in keywordsAndDictionary.synonymsDictionary:
+        #    skillKeyword = keywordsAndDictionary.synonymsDictionary[skillKeywordRaw]
+	#    if skillKeywordRaw == ".net":
+	#	logging.debug("skillKeyword that we got from the dictionary = " + skillKeyword)
+
+	for synonym in synonyms:
+	    if synonym == ".net":
+		logging.debug("synonym = " + synonym)
+
+	    m1 = re.search('\W(' +  re.escape(synonym) + ')\W', jobDescription)
+	    if m1:
+		if synonym == ".net":
+		    logging.debug("Found " + synonym + " in the job description")
+		if skillKeyword in skillsDictionary:
+		    secondarySkillDict = skillsDictionary[skillKeyword]
+		    if skillKeyword == ".net":		
+			logging.debug("There is already an entry for its synonym " + skillKeyword + " in skillsDictionary")
+		else:
+		    if skillKeyword == ".net":
+			logging.debug("There is no entry for its synonym " + skillKeyword + " in skillsDictionary")
+		    secondarySkillDict = {}
 		############# TO DO #########################
 		# For this skillKeyword, retrieve all the records from skill_pairs table
 		# where this skillKeyword is the primary_term;
 		# Populate secondarySkillDict with them
 		####################
 		
-	    if skillKeyword in skillsPostCountsDict:
-		skillsPostCountsDict[skillKeyword] = skillsPostCountsDict[skillKeyword] + 1
-	    else:
-                skillsPostCountsDict[skillKeyword] = 1
+		if skillKeyword in skillsPostCountsDict:
+		    skillsPostCountsDict[skillKeyword] = skillsPostCountsDict[skillKeyword] + 1
+		    if skillKeyword == ".net":
+			logging.debug("skillKeyword already is in skillsPostCountsDict, and its count after increment is " + str(skillsPostCountsDict[skillKeyword]))
+		else:
+		    skillsPostCountsDict[skillKeyword] = 1
+		    if skillKeyword == ".net":
+			logging.debug("skillKeyword " + skillKeyword + " was not in skillsPostCountsDict, and its count is now 1 ")
 
-            for secondarySkillKeywordOrig in skillKeywords:
-                secondarySkillKeywordRaw = secondarySkillKeywordOrig.lower()
-                secondarySkillKeyword = secondarySkillKeywordRaw
-                if secondarySkillKeywordRaw in synonymsDictionary:
-                    secondarySkillKeyword = synonymsDictionary[secondarySkillKeywordRaw]
+		# Now for all the skillkeywords we check if they also appear in the same job posting with "primary" keyword
 
-                if (skillKeyword != secondarySkillKeyword):
-                    m2 = re.search('\W(' + re.escape(secondarySkillKeyword) + ')\W', jobDescription)
-                    if m2:
-                        if secondarySkillKeyword in secondarySkillDict:
-                            secondarySkillDict[secondarySkillKeyword] = secondarySkillDict[secondarySkillKeyword] + 1
-                        else:
-                            secondarySkillDict[secondarySkillKeyword] = 1
-            skillsDictionary[skillKeyword] = secondarySkillDict
+		for skillKeywordSecondaryObj in keywordsWithSynonyms.skillKeywords:
+		    #logging.debug("skillKeywordSecondaryObj = " + pprint.pformat(skillKeywordSecondaryObj))
+		    skillKeywordSecondaryObjKeys = skillKeywordSecondaryObj.keys()
+		    skillKeywordSecondary = skillKeywordSecondaryObjKeys[0]
+
+		    if (skillKeywordRaw != skillKeywordSecondary):
+
+			secondarySynonyms = [ skillKeywordSecondary ]
+			if skillKeywordSecondaryObj[skillKeywordSecondary]:
+			    secondarySynonyms.extend(skillKeywordSecondaryObj[skillKeywordSecondary])
+			secondarySynonyms = map(lambda x: x.lower(), secondarySynonyms)
+
+			for secondarySynonym in secondarySynonyms:	    
+			    m2 = re.search('\W(' +  re.escape(secondarySynonym) + ')\W', jobDescription)
+			    if m2:
+				if skillKeyword == ".net":
+				    if secondarySynonym in [ 'mssql', 'sql server', 'ms sql', 'sqlserver']:
+					logging.debug("Found secondarySynonym " + secondarySynonym + " in the job description for primary keyword " + skillKeyword)
+				if skillKeywordSecondary in secondarySkillDict:
+				    secondarySkillDict[skillKeywordSecondary] = secondarySkillDict[skillKeywordSecondary] + 1
+				else:
+				    secondarySkillDict[skillKeywordSecondary] = 1				    
+				if skillKeyword == ".net":
+				    if secondarySynonym in [ 'mssql', 'sql server', 'ms sql', 'sqlserver']:
+					logging.debug("secondarySkillDict[skillKeywordSecondary] = " + pprint.pformat(secondarySkillDict[skillKeywordSecondary]))
+				break
+
+		# At this point we have finished checking the job description for all the other skill keywords
+		# to see if they occur together with the primary keyword
+
+		# Now we'll break the loop for synonym in synonyms , because if one synonyms was found
+		# in the job description, we should not look for the rest
+
+		skillsDictionary[skillKeyword] = secondarySkillDict
+		
+		break
+	    
+
+
 
 for skillKeyword in skillsPostCountsDict:
     skillPostCounter = SkillPostCounter()
     skillPostCounter.skill_term = skillKeyword
     skillPostCounter.number_of_postings = skillsPostCountsDict[skillKeyword]
-    session.add(skillPostCounter)
+    session.add(skillPostCounter) # COMMENTED OUT TO AVOID WRITING TO DATABASE
 
 for skillKeyword in skillsDictionary:
     secondarySkillHash = skillsDictionary[skillKeyword]
@@ -155,13 +177,18 @@ for skillKeyword in skillsDictionary:
         skillpair.primary_term = skillKeyword
         skillpair.secondary_term = secondarySkillKeyword
         skillpair.number_of_times = secondarySkillCount
-        session.add(skillpair)
-        logging.debug(pprint.pformat(skillpair.__dict__))
+        session.add(skillpair) # COMMENTED OUT TO AVOID WRITING TO DATABASE
+        #logging.debug(pprint.pformat(skillpair.__dict__))
+	# REMOVE: The line below is only for printing
+	#ratio = skillpair.number_of_times / skillsPostCountsDict[skillKeyword]
+	#logging.debug("P: " + skillpair.primary_term + " ; S: " + skillpair.secondary_term + "; ratio: " + pprint.pformat(ratio))
 
-session.commit()
+session.commit() # COMMENTED OUT TO AVOID WRITING TO DATABASE
 
 ################ TO DO #############
 # Move the processed job files from the "forImport" directory to the "imported" directory
 ###############
 
 
+#import shutil
+#shutil.move('C:\\bacon.txt', 'C:\\eggs')
