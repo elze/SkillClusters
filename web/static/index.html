@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/skills.css"/>
     <script src="http://code.angularjs.org/1.4.7/angular.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.js"></script>
     <title>SkillClusters with Angular</title>
 </head>
 
@@ -54,7 +56,7 @@
 
                     <div ng-show="showAssociatedSkills[$index]">
                     <span class="second" ng-repeat="secondary_skill in skill.associated_terms">
-                        <span id="smBtn" class="btn btn-sm" ng-style="secondarySkillStyle[$parent.$index][$index]">{{ secondary_skill.secondary_term }} <br/><span style="font-size: 75%">{{ ratiosToDisplay[$parent.$index][$index] }}</span></span>
+                        <span id="smBtn" class="btn btn-sm" ng-style="secondarySkillStyle[$parent.$index][$index]" ng-click="showJobSnippets(skill.primary_term, secondary_skill)">{{ secondary_skill.secondary_term }} <br/><span style="font-size: 75%">{{ ratiosToDisplay[$parent.$index][$index] }}</span></span>
                     </span>
                     </div>
                     <br><br>
@@ -68,6 +70,6 @@
 <script src="js/app.js"></script>
 <!-- Controller -->
 <script src="js/controller.js"></script>
-
+<script src="js/modalService.js"></script>
 </body>
 </html>

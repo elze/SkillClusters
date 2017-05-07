@@ -40,6 +40,9 @@ from sqlalchemy import Column, Integer, String
 
 from sccommon.SkillPair import SkillPair
 from sccommon.SkillPostCounter import SkillPostCounter
+from sccommon.JobPostingToSkillPair import JobPostingToSkillPair
+from sccommon.JobPostingToSkillPairWrapper import JobPostingToSkillPairWrapper
+
 
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
@@ -51,6 +54,8 @@ import keywordsWithSynonyms
 skillsDictionary = {}
 
 skillsPostCountsDict = {}
+
+jobPostingsToSkillsPairs = []
 
 matches = []
 
@@ -79,9 +84,9 @@ for jobFileName in jobFileNames:
     indEnNote = jobDescriptionRaw.find("<en-note>")
     jobDescription = jobDescriptionRaw[indEnNote:]
     #print importFilePath + jobFileName
-    logging.debug(jobFileName)
+    #logging.debug(jobFileName)
     #logging.debug(jobDescription)
-    logging.debug("=====================")
+    #logging.debug("=====================")
     #for skillKeywordOrig in keywordsAndDictionary.skillKeywords:
     for skillKeywordObj in keywordsWithSynonyms.skillKeywords:
 	skillKeywordObjKeys = skillKeywordObj.keys()
@@ -153,9 +158,41 @@ for jobFileName in jobFileNames:
 				    if secondarySynonym in [ 'mssql', 'sql server', 'ms sql', 'sqlserver']:
 					logging.debug("Found secondarySynonym " + secondarySynonym + " in the job description for primary keyword " + skillKeyword)
 				if skillKeywordSecondary in secondarySkillDict:
-				    secondarySkillDict[skillKeywordSecondary] = secondarySkillDict[skillKeywordSecondary] + 1
+				    #secondarySkillDict[skillKeywordSecondary] = secondarySkillDict[skillKeywordSecondary] + 1
+				    #skillpair = secondarySkillDict[skillKeywordSecondary]
+				    #skillpair.number_of_times = skillpair.number_of_times + 1
+				    secondarySkillDict[skillKeywordSecondary].number_of_times = secondarySkillDict[skillKeywordSecondary].number_of_times + 1
+				    
+				    jobPostingToSkillPair = JobPostingToSkillPair()
+				    jobPostingToSkillPair.job_file_name = jobFileName
+				    jobPostingToSkillPairWrapper = JobPostingToSkillPairWrapper(jobPostingToSkillPair, secondarySkillDict[skillKeywordSecondary])
+				    jobPostingsToSkillsPairs.append(jobPostingToSkillPairWrapper)
+				    logging.debug("skillKeywordSecondary " + skillKeywordSecondary + " is in secondarySkillDict; skillpair.primary_term = " + secondarySkillDict[skillKeywordSecondary].primary_term + " secondary_term = " + secondarySkillDict[skillKeywordSecondary].secondary_term + "; jobFileName = " + jobFileName)
+				    #logging.debug("skillKeywordSecondary " + skillKeywordSecondary + " is in secondarySkillDict; skillpair.primary_term = " + skillpair.primary_term + " secondary_term = " + skillpair.secondary_term + "; jobFileName = " + jobFileName)
+				    logging.debug("jobPostingToSkillPairWrapper = " + pprint.pformat(jobPostingToSkillPairWrapper))
+				    if len(jobPostingsToSkillsPairs) < 20:
+					logging.debug("jobPostingsToSkillsPairs after append :")
+					map(lambda x: logging.debug(x), jobPostingsToSkillsPairs)
+				    
 				else:
-				    secondarySkillDict[skillKeywordSecondary] = 1				    
+				    #secondarySkillDict[skillKeywordSecondary] = 1
+				    skillpair = SkillPair()
+				    skillpair.primary_term = skillKeyword
+				    skillpair.secondary_term = skillKeywordSecondary
+				    skillpair.number_of_times = 1
+				    secondarySkillDict[skillKeywordSecondary] = skillpair
+
+				    #logging.debug("skillKeywordSecondary " + skillKeywordSecondary + " is not in secondarySkillDict; skillpair is new; skillpair.primary_term = " + skillpair.primary_term + " secondary_term = " + skillpair.secondary_term + "; jobFileName = " + jobFileName)
+				    logging.debug("skillKeywordSecondary " + skillKeywordSecondary + " is not in secondarySkillDict; skillpair.primary_term = " + secondarySkillDict[skillKeywordSecondary].primary_term + " secondary_term = " + secondarySkillDict[skillKeywordSecondary].secondary_term + "; jobFileName = " + jobFileName)				    
+				    jobPostingToSkillPair = JobPostingToSkillPair()
+				    jobPostingToSkillPair.job_file_name = jobFileName				
+				    jobPostingToSkillPairWrapper = JobPostingToSkillPairWrapper(jobPostingToSkillPair, skillpair)
+				    jobPostingsToSkillsPairs.append(jobPostingToSkillPairWrapper)					
+				    logging.debug("jobPostingToSkillPairWrapper = " + pprint.pformat(jobPostingToSkillPairWrapper))
+				    if len(jobPostingsToSkillsPairs) < 20:
+					logging.debug("jobPostingsToSkillsPairs after append :")
+					map(lambda x: logging.debug(x), jobPostingsToSkillsPairs)
+
 				if skillKeyword == ".net":
 				    if secondarySynonym in [ 'mssql', 'sql server', 'ms sql', 'sqlserver']:
 					logging.debug("secondarySkillDict[skillKeywordSecondary] = " + pprint.pformat(secondarySkillDict[skillKeywordSecondary]))
@@ -171,9 +208,6 @@ for jobFileName in jobFileNames:
 		
 		break
 	    
-
-
-
 for skillKeyword in skillsPostCountsDict:
     skillPostCounter = SkillPostCounter()
     skillPostCounter.skill_term = skillKeyword
@@ -183,11 +217,7 @@ for skillKeyword in skillsPostCountsDict:
 for skillKeyword in skillsDictionary:
     secondarySkillHash = skillsDictionary[skillKeyword]
     for secondarySkillKeyword in secondarySkillHash:
-        secondarySkillCount = secondarySkillHash[secondarySkillKeyword]
-        skillpair = SkillPair()
-        skillpair.primary_term = skillKeyword
-        skillpair.secondary_term = secondarySkillKeyword
-        skillpair.number_of_times = secondarySkillCount
+        skillpair = secondarySkillHash[secondarySkillKeyword]
         session.add(skillpair) # COMMENTED OUT TO AVOID WRITING TO DATABASE
         #logging.debug(pprint.pformat(skillpair.__dict__))
 	# REMOVE: The line below is only for printing
@@ -195,6 +225,21 @@ for skillKeyword in skillsDictionary:
 	#logging.debug("P: " + skillpair.primary_term + " ; S: " + skillpair.secondary_term + "; ratio: " + pprint.pformat(ratio))
 
 session.commit() # COMMENTED OUT TO AVOID WRITING TO DATABASE
+
+for jobPostingToSkillPairW in jobPostingsToSkillsPairs:
+    jobPostingToSkillPair = jobPostingToSkillPairW.jobPostingToSkillPair
+    jobPostingToSkillPair.skill_pair_id = jobPostingToSkillPairW.skillPair.id
+
+session.expunge_all()
+
+#print ("jobPostingsToSkillsPairs length = " + str(len(jobPostingsToSkillsPairs)))
+
+for jobPostingToSkillPairW in jobPostingsToSkillsPairs:
+    jobPostingToSkillPair = jobPostingToSkillPairW.jobPostingToSkillPair
+    session.add(jobPostingToSkillPair)
+    #logging.debug("jobPostingToSkillPair.skill_pair_id = " + str(jobPostingToSkillPair.skill_pair_id) + " primary_term = " + jobPostingToSkillPairW.skillPair.primary_term + " secondary_term = " + jobPostingToSkillPairW.skillPair.secondary_term) 
+
+session.commit()
 
 ################ TO DO #############
 # Move the processed job files from the "forImport" directory to the "imported" directory

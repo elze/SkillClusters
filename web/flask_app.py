@@ -41,10 +41,12 @@ db = SQLAlchemy(app)
 
 from sccommon.SkillPair import SkillPair
 from sccommon.SkillPostCounter import SkillPostCounter
+from sccommon.JobPostingToSkillPair import JobPostingToSkillPair
 
 def skill_pair_default(o):
     if isinstance(o, SkillPair):
-        return dict(secondary_term=o.secondary_term,
+        return dict(id=o.id,
+		    secondary_term=o.secondary_term,
                     number_of_times=o.number_of_times,
                     ratio=str(o.ratio))
 
@@ -152,6 +154,7 @@ def skillsPage(pageNum, itemsPerPage):
 
 	if (primary_skill_index >= (pageNum-1)*itemsPerPage) and (primary_skill_index < pageNum*itemsPerPage): 
 	    this_skill_dictionary["associated_terms"].append(s)
+	    app.logger.debug("After this_skill_dictionary[associated_terms].append(s): primaryTerm = " + primaryTerm + " s = " + pprint.pformat(s))
 
         # app.logger.debug(primaryTerm)
         #primary_to_secondary[primaryTerm].append(s)
@@ -174,6 +177,25 @@ def primary_skills_count():
     app.logger.info("primary_skills_count(): Count = " + str(primarySkillsCount))
     app.logger.info(sys.path)
     return countJsonString
+
+@app.route('/jobsPerSkillPair/<int:skillPairId>')
+def jobsPerSkillPair(skillPairId):
+    # In this method we are not using "range" function to get a range of skills_dictionaries
+    # between certain indices, because I tried that and range function makes the
+    # method impossibly slow. So we are building skills_dictionaries to contain
+    # just those primary_terms that fall between certain indices.
+
+    engine = db.engine
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    q = session.query(JobPostingToSkillPair).filter(JobPostingToSkillPair.skill_pair_id == skillPairId)
+    jobFileSkillPairs = q.order_by(JobPostingToSkillPair.job_file_name.asc()).all()
+    jobFileNames = [x.job_file_name for x in jobFileSkillPairs]
+
+    jobFileNamesJsonString = json.dumps(jobFileNames)
+    return jobFileNamesJsonString
+
 
 @app.route('/')
 def hello_world():

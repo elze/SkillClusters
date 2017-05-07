@@ -15,7 +15,7 @@ app.directive('a', function() {
    };
 });
 
-app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
+app.controller('MainController', ['$scope', '$http', 'scModalService', function ($scope, $http, scModalService) {
     $scope.title = 'Welcome to SkillClusters!';
     $scope.showAssociatedSkills = [];
     $scope.secondarySkillStyle = [];
@@ -138,7 +138,7 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
 
 
   $scope.searchByTerm = function(searchTerm) {
-      console.log('searchByTerm: searchTerm = ' + searchTerm);
+      //console.log('searchByTerm: searchTerm = ' + searchTerm);
       /***
 	  for (var key in $scope.checkboxModels) {
 	  console.log("pageChanged: deleting key = " + key);
@@ -160,5 +160,10 @@ app.controller('MainController', ['$scope', '$http', function ($scope, $http) {
   $scope.setShowAssociatedSkills = function (i) {
     $scope.showAssociatedSkills[i] = !$scope.showAssociatedSkills[i];
   }
+
+  $scope.showJobSnippets = function(primary_term, secondary_skill) {
+    scModalService.showModal(primary_term, secondary_skill.secondary_term, secondary_skill.id).then(function (result) {
+        });
+    } // end $scope.showJobSnippets
 
 }]);
