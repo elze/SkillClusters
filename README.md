@@ -27,6 +27,9 @@ pip install flask-admin
 
 pip install psycopg2
 
+Or if you are using MySQL database, to install a Python module for it, use
+
+sudo apt-get install python-mysqldb
 
 3. You can connect your local instance of the app to a database on your machine, if you have one installed, or the one used by the app deployed at elze.pythonanywhere.com. (If the latter, ask one of the contributors of this project for these configuration parameters).
 

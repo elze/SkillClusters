@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 from flask import render_template
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 
 import logging
 from logging import FileHandler
@@ -180,26 +180,30 @@ def primary_skills_count():
 
 @app.route('/jobsPerSkillPair/<int:skillPairId>')
 def jobsPerSkillPair(skillPairId):
-    # In this method we are not using "range" function to get a range of skills_dictionaries
-    # between certain indices, because I tried that and range function makes the
-    # method impossibly slow. So we are building skills_dictionaries to contain
-    # just those primary_terms that fall between certain indices.
-
     engine = db.engine
 
     Session = sessionmaker(bind=engine)
     session = Session()
     q = session.query(JobPostingToSkillPair).filter(JobPostingToSkillPair.skill_pair_id == skillPairId)
     jobFileSkillPairs = q.order_by(JobPostingToSkillPair.job_file_name.asc()).all()
-    jobFileNames = [x.job_file_name for x in jobFileSkillPairs]
+    #jobFileNames = [x.job_file_name for x in jobFileSkillPairs]
+    #jobSnippets = [(x.job_file_name, x.job_ad_snippet) for x in jobFileSkillPairs]
 
-    jobFileNamesJsonString = json.dumps(jobFileNames)
-    return jobFileNamesJsonString
+    #jobFileNamesJsonString = json.dumps(jobFileNames)
+    #return jobFileNamesJsonString
+    #jobSnippetsJsonString = json.dumps(jobSnippets)
+    # This doesn't work because some of the fields in these objects are not serializable
+    #jobFileSkillPairsDict =  [j.__dict__ for j in jobFileSkillPairs]
+    jobFileSkillPairsDict =  [{"job_file_name": j.job_file_name, "job_ad_snippet": j.job_ad_snippet} for j in jobFileSkillPairs] 
+    jobSnippetsJsonString = json.dumps(jobFileSkillPairsDict)
+    return jobSnippetsJsonString
 
 
 @app.route('/')
-def hello_world():
-    return render_template('hello.html')
+def root():
+        return app.send_static_file('index.html')
+#def hello_world():
+#    return render_template('hello.html')
 
 
 @app.route('/skills_mock/')
