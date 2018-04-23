@@ -5,12 +5,14 @@ from sqlalchemy import Column, DateTime, Integer, Float, Numeric, String, Text, 
 
 Base = declarative_base()
 
-class JobPostingToSkillPair(Base):
-    __tablename__ = 'sc2_job_postings_to_skill_pairs'
-
+class JobHypCompanyMapping(Base):
+    __tablename__ = 'sc2_job_hyp_company_mappings'
     job_file_name = Column(String(140), primary_key=True)
-    skill_pair_id = Column(Integer, primary_key=True)
-    job_ad_snippet = Column(String(1500))
+    hyp_company = Column(String(256))
+
+    def __init__(self, jobFileName, hypCompany):
+	self.job_file_name = jobFileName
+	self.hyp_company = hypCompany
 
     def __unicode__(self):
         return self.job_file_name

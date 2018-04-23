@@ -22,6 +22,9 @@ class SkillPairProcessor(object):
 	    m2 = re.search('\W(' +  re.escape(secondarySynonym) + ')\W', jobDescription, flags=re.IGNORECASE)
 	    if m2:
 		job_ad_snippet = self.getJobAdSnippet(synonyms, secondarySynonyms, jobDescription)
+		if len(job_ad_snippet) > 3000:
+		    logging.debug( "!!!! jobFileName = " + jobFileName + " synonyms = " + pprint.pformat(synonyms) + " secondarySynonyms = " + pprint.pformat(secondarySynonyms) + "  len(jobPostingToSkillPair.job_ad_snippet) = " + str(len(job_ad_snippet)) + "\n" + job_ad_snippet)
+
 					
 		if skillKeywordSecondary in secondarySkillDict:
 		    skillpair = secondarySkillDict[skillKeywordSecondary]

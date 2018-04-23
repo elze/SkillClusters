@@ -8,7 +8,7 @@ from sccommon.SkillPostCounter import SkillPostCounter
 Base = declarative_base()
 
 class SkillPair(Base):
-    __tablename__ = 'sc4_skill_pairs'
+    __tablename__ = 'sc2_skill_pairs'
     #__tablename__ = 'skill_pairs'
     id = Column(Integer, primary_key=True)
     primary_term = Column(String(140))

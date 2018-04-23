@@ -20,13 +20,10 @@ currentPath = os.getcwd()
 (oneLevelUp, thisDirectory) = os.path.split(currentPath)
 sys.path.append(oneLevelUp)
 
+app.oneLevelUp = oneLevelUp
+app.thisDirectory = thisDirectory
 
 app.config.from_pyfile('../web_settings.cfg')
-
-
-from flask.ext import admin
-# from flask.ext.admin.contrib import sqla
-from flask.ext.admin.contrib.sqla import filters, ModelView
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
@@ -49,25 +46,6 @@ def skill_pair_default(o):
 		    secondary_term=o.secondary_term,
                     number_of_times=o.number_of_times,
                     ratio=str(o.ratio))
-
-class SkillView(ModelView):
-    list_template = 'listCustom.html'
-    column_labels = dict(primary_term='Primary Term', secondary_term='Associated Term',
-                         number_of_times='Number of times', ratio='Ratio')
-    column_descriptions = dict(
-        number_of_times='Number of times associated term appears in a job listing with the primary term',
-        ratio='Fraction of Primary Term job listings that have Associated Term in them')
-    column_searchable_list = ("primary_term",)
-    column_filters = ('primary_term',)
-
-    can_create = False
-    can_edit = False
-    can_delete = False
-
-    def __init__(self, session, **kwargs):
-        # You can pass name and other parameters if you want to
-        super(SkillView, self).__init__(SkillPair, session, **kwargs)
-
 
 def buildSkillsDictionaries(skillPairs):
     primary_to_secondary = {}
@@ -104,8 +82,6 @@ def skills():
 
 @app.route('/skills/<primaryTerm>')
 def skillsByTerm(primaryTerm):
-    # This is not implemented yet: this is the same code as non-paginated skills
-
     engine = db.engine
 
     Session = sessionmaker(bind=engine)
@@ -115,55 +91,54 @@ def skillsByTerm(primaryTerm):
 
     skills_dictionaries = buildSkillsDictionaries(skillPairs)
 
-
     skillsJsonString = json.dumps(skills_dictionaries, sort_keys=True, default=skill_pair_default)
     return skillsJsonString
 
 	
 @app.route('/skills/<int:pageNum>/<int:itemsPerPage>')
 def skillsPage(pageNum, itemsPerPage):
-    # In this method we are not using "range" function to get a range of skills_dictionaries
-    # between certain indices, because I tried that and range function makes the
-    # method impossibly slow. So we are building skills_dictionaries to contain
-    # just those primary_terms that fall between certain indices.
+	# In this method we are not using "range" function to get a range of skills_dictionaries	
+	# between certain indices, because I tried that and range function makes the
+	# method impossibly slow. So we are building skills_dictionaries to contain
+	# just those primary_terms that fall between certain indices.
 
-    engine = db.engine
+	engine = db.engine
 
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    q = session.query(SkillPair)
-    # skillPairs = q.limit(100).all()
-    skillPairs = q.order_by(SkillPair.primary_term.asc(), SkillPair.ratio.asc()).all()
+	Session = sessionmaker(bind=engine)
+	session = Session()
+	q = session.query(SkillPair)
+	# skillPairs = q.limit(100).all()
+	skillPairs = q.order_by(SkillPair.primary_term.asc(), SkillPair.ratio.asc()).all()
 
-    primary_to_secondary = {}
+	primary_to_secondary = {}
 
-    skills_dictionaries = []
-    primary_skill_index = -1
-    current_primary_term = ''
+	skills_dictionaries = []
+	primary_skill_index = -1
+	current_primary_term = ''
 	
-    for s in skillPairs:
-        primaryTerm = s.primary_term
-        if primaryTerm != current_primary_term:
-	    current_primary_term = primaryTerm
-	    primary_skill_index = primary_skill_index + 1
+	for s in skillPairs:
+		primaryTerm = s.primary_term
+		if primaryTerm != current_primary_term:
+			current_primary_term = primaryTerm
+			primary_skill_index = primary_skill_index + 1
 
-	    if (primary_skill_index >= (pageNum-1)*itemsPerPage) and (primary_skill_index < pageNum*itemsPerPage): 
-		associatedTerms = []
-		this_skill_dictionary = dict(primary_term=primaryTerm, associated_terms=associatedTerms)
-		skills_dictionaries.append(this_skill_dictionary)
+			if (primary_skill_index >= (pageNum-1)*itemsPerPage) and (primary_skill_index < pageNum*itemsPerPage): 
+				associatedTerms = []
+				this_skill_dictionary = dict(primary_term=primaryTerm, associated_terms=associatedTerms)
+				skills_dictionaries.append(this_skill_dictionary)
 
-	if (primary_skill_index >= (pageNum-1)*itemsPerPage) and (primary_skill_index < pageNum*itemsPerPage): 
-	    this_skill_dictionary["associated_terms"].append(s)
-	    app.logger.debug("After this_skill_dictionary[associated_terms].append(s): primaryTerm = " + primaryTerm + " s = " + pprint.pformat(s))
+		if (primary_skill_index >= (pageNum-1)*itemsPerPage) and (primary_skill_index < pageNum*itemsPerPage): 
+			this_skill_dictionary["associated_terms"].append(s)
+			app.logger.debug("After this_skill_dictionary[associated_terms].append(s): primaryTerm = " + primaryTerm + " s = " + pprint.pformat(s))
 
-        # app.logger.debug(primaryTerm)
-        #primary_to_secondary[primaryTerm].append(s)
+		# app.logger.debug(primaryTerm)
+		#primary_to_secondary[primaryTerm].append(s)
 
-    # app.logger.debug('primary_terms = \n')
-    # app.logger.debug(primary_terms)
+	# app.logger.debug('primary_terms = \n')
+	# app.logger.debug(primary_terms)
 
-    skillsJsonString = json.dumps(skills_dictionaries, sort_keys=True, default=skill_pair_default)
-    return skillsJsonString
+	skillsJsonString = json.dumps(skills_dictionaries, sort_keys=True, default=skill_pair_default)
+	return skillsJsonString
 
 @app.route('/primary_skills_count')
 def primary_skills_count():
@@ -186,25 +161,32 @@ def jobsPerSkillPair(skillPairId):
     session = Session()
     q = session.query(JobPostingToSkillPair).filter(JobPostingToSkillPair.skill_pair_id == skillPairId)
     jobFileSkillPairs = q.order_by(JobPostingToSkillPair.job_file_name.asc()).all()
-    #jobFileNames = [x.job_file_name for x in jobFileSkillPairs]
-    #jobSnippets = [(x.job_file_name, x.job_ad_snippet) for x in jobFileSkillPairs]
 
-    #jobFileNamesJsonString = json.dumps(jobFileNames)
-    #return jobFileNamesJsonString
-    #jobSnippetsJsonString = json.dumps(jobSnippets)
     # This doesn't work because some of the fields in these objects are not serializable
     #jobFileSkillPairsDict =  [j.__dict__ for j in jobFileSkillPairs]
+
     jobFileSkillPairsDict =  [{"job_file_name": j.job_file_name, "job_ad_snippet": j.job_ad_snippet} for j in jobFileSkillPairs] 
     jobSnippetsJsonString = json.dumps(jobFileSkillPairsDict)
     return jobSnippetsJsonString
+
+@app.route('/jobPosting/<string:dir_name>/<uuid:job_file_name>/<string:primary_term>/<string:secondary_term>')
+def jobPosting(dir_name, job_file_name, primary_term, secondary_term):
+    #app.logger.error("sys.path = " + sys.path)
+    #jobPostingsLocation = app.config.get('postings', 'JOB_POSTINGS_LOCATION')
+    jobPostingsLocation = app.config.get('JOB_POSTINGS_LOCATION')
+    currentPath = os.getcwd()
+    app.logger.debug("jobPosting: dir_name = " + dir_name + " job_file_name = " + str(job_file_name) + " jobPostingsLocation = " + jobPostingsLocation )
+
+    jobFile = open(jobPostingsLocation + dir_name + '/' + str(job_file_name) + ".txt", "r")
+    jobDescription = jobFile.read()
+    lines = jobDescription.split("\n")
+    jobDesc = '<br/>\n'.join(lines)
+    return jobDesc
 
 
 @app.route('/')
 def root():
         return app.send_static_file('index.html')
-#def hello_world():
-#    return render_template('hello.html')
-
 
 @app.route('/skills_mock/')
 def skills_mock():
@@ -262,21 +244,15 @@ def skills_mock():
     )
     return skillsJsonString
 
-# Create admin
-admin = admin.Admin(app, 'SkillCluster')
-
-# Add views
-admin.add_view(SkillView(db.session))
-
 if __name__ == '__main__':
 
-    file_handler = FileHandler("skillClustersLog20150909.txt")
+    file_handler = FileHandler("skillClustersLog20180321.txt")
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
 
 
     # Start app
     app.run(debug=True)
-    #app.logger.debug(sys.path)
-    #currentPath = os.getcwd()
-    #app.logger.debug("os.getcwd() = " + os.getcwd())
+    app.logger.debug(sys.path)
+    currentPath = os.getcwd()
+    app.logger.debug("os.getcwd() = " + os.getcwd())

@@ -41,4 +41,19 @@ class SessionSaver(object):
 	    jobPostingToSkillPair = jobPostingToSkillPairW.jobPostingToSkillPair
 	    self.session.add(jobPostingToSkillPair)
             #logging.debug("jobPostingToSkillPair.skill_pair_id = " + str(jobPostingToSkillPair.skill_pair_id) + " primary_term = " + jobPostingToSkillPairW.skillPair.primary_term + " secondary_term = " + jobPostingToSkillPairW.skillPair.secondary_term) 
-        self.session.commit() # UNCOMMENT THIS
+        self.session.commit()
+
+    def saveJobListings(self, jobListings):
+	for jobListing in jobListings:
+	    self.session.add(jobListing) 
+	self.session.commit()
+
+    def saveJobHypCompanyMappings(self, jobHypCompanyMappings):
+	for jobHypCompanyMapping in jobHypCompanyMappings:
+	    self.session.add(jobHypCompanyMapping) 
+	self.session.commit()
+
+    def saveJobLocations(self, jobLocations):
+	for jobLocation in jobLocations:
+	    self.session.add(jobLocation) 
+	self.session.commit()

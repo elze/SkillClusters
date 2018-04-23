@@ -5,12 +5,14 @@ from sqlalchemy import Column, DateTime, Integer, Float, Numeric, String, Text, 
 
 Base = declarative_base()
 
-class JobPostingToSkillPair(Base):
-    __tablename__ = 'sc2_job_postings_to_skill_pairs'
-
+class JobLocation(Base):
+    __tablename__ = 'sc2_job_locations'
     job_file_name = Column(String(140), primary_key=True)
-    skill_pair_id = Column(Integer, primary_key=True)
-    job_ad_snippet = Column(String(1500))
+    location = Column(String(140))
+
+    def __init__(self, jobFileName, location):
+	self.job_file_name = jobFileName
+	self.location = location
 
     def __unicode__(self):
         return self.job_file_name
