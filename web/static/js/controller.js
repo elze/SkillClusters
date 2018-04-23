@@ -15,17 +15,18 @@ app.directive('a', function() {
    };
 });
 
-app.controller('MainController', ['$scope', '$http', 'scModalService', function ($scope, $http, scModalService) {
+app.controller('MainController', ['$rootScope', '$scope', '$http', 'scModalService', 'statCounterService', 'iconService', function ($rootScope, $scope, $http, scModalService, statCounterService, iconService) {
     $scope.title = 'Welcome to SkillClusters!';
     $scope.showAssociatedSkills = [];
     $scope.secondarySkillStyle = [];
     $scope.ratiosToDisplay = [];
+    $scope.iconService = iconService;
 
     //secondaryBoxColors = ['#D6FFEB', '#C2FFE0', '#ADFFD6', '#99FFCC', '#7ACCA3', '#5C997A', '#3D6652'];
     secondaryBoxColors = ['#BCD6C9', '#61B58D', '#7DB19B', '#AD6798', '#5E6B64', '#5B829C', '#2A1768'];
 
-    $scope.primarySkillsPerPage = 5; // this should match however many results your API puts on one page
-    $scope.zeroBasedCurrentPage = 0;
+    $scope.primarySkillsPerPage = 20; // this should match however many results your API puts on one page
+    $rootScope.zeroBasedCurrentPage = 0;
 
     //$http.get('http://127.0.0.1:5000/primary_skills_count')
     $http.get('primary_skills_count')
@@ -52,14 +53,11 @@ app.controller('MainController', ['$scope', '$http', 'scModalService', function 
 
     $scope.pageChanged = function(newPage) {
       console.log('Skills page changed to ' + newPage);
-      /***
-	  for (var key in $scope.checkboxModels) {
-	  console.log("pageChanged: deleting key = " + key);
-	  delete $scope.checkboxModels[key];
-	  }
-      ********/
-      //getResultsPage(newPage);
-      //zeroBasedCurrentPage = newPage-1;
+      $rootScope.zeroBasedCurrentPage = newPage;      
+      $rootScope.currentPageStartTerm = $scope.skills[$scope.primarySkillsPerPage * ($rootScope.zeroBasedCurrentPage-1)].primary_term;
+      $rootScope.currentPageEndTerm = $scope.skills[$scope.primarySkillsPerPage * $rootScope.zeroBasedCurrentPage - 1].primary_term;
+      $rootScope.pageTitle = ' page ' + $rootScope.zeroBasedCurrentPage + ' : ' + $rootScope.currentPageStartTerm + ' - ' + $rootScope.currentPageEndTerm;
+      statCounterService.postscribeStatcounter();
   };
 
   function populateData() {
@@ -132,7 +130,7 @@ app.controller('MainController', ['$scope', '$http', 'scModalService', function 
             $scope.skills = result.data;
             $scope.skills_length = result.data.length;
             populateData();
-
+	    statCounterService.postscribeStatcounter();
         });
   };
 
@@ -156,12 +154,32 @@ app.controller('MainController', ['$scope', '$http', 'scModalService', function 
         });
   };
 
-
-  $scope.setShowAssociatedSkills = function (i) {
+  $scope.setShowAssociatedSkills = function (i, primary_term) {
     $scope.showAssociatedSkills[i] = !$scope.showAssociatedSkills[i];
+    let indexOfExistingSnippet = $rootScope.pageTitle.indexOf(' ; job snippets: ');
+    if (indexOfExistingSnippet != -1) {
+      $rootScope.pageTitle = $rootScope.pageTitle.substring(0, indexOfExistingSnippet);
+    }
+
+    if ($scope.showAssociatedSkills[i]) 
+      $rootScope.pageTitle = $rootScope.pageTitle + ' ; ' + primary_term;
+    else {
+      var [prefix, ...expandedTerms] = $rootScope.pageTitle.split(" ; ");
+      expandedTerms = expandedTerms.filter(x => x != primary_term);
+      var expTerms = expandedTerms && expandedTerms.length > 0 ?  ' ; ' + expandedTerms.join(' ; ') : '';
+      $rootScope.pageTitle = prefix + expTerms;
+    }
+    statCounterService.postscribeStatcounter();
+
+    if ($scope.showAssociatedSkills[i]) {
+      let skill = $scope.skills[i];
+      $scope.iconService.initializeAssociatedSkillsIcons(skill);
+    }
+
   }
 
   $scope.showJobSnippets = function(primary_term, secondary_skill) {
+    iconService.setSpinner(secondary_skill.secondary_term);
     scModalService.showModal(primary_term, secondary_skill.secondary_term, secondary_skill.id).then(function (result) {
         });
     } // end $scope.showJobSnippets

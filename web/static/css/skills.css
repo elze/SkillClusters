@@ -50,3 +50,14 @@ h4 {
     text-align: justify;
 
 }
+
+.even { 
+  background-color: #C2D2EA;
+  margin: 5px 5px 5px 5px;
+  padding: 5px 5px 5px 5px;
+}
+
+.odd { 
+  margin: 5px 5px 5px 5px;
+  padding: 5px 5px 5px 5px;
+}

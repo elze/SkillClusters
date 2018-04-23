@@ -4,11 +4,14 @@
     <!-- <link rel="stylesheet" href="css/bootstrap.min.css"> -->
     <!-- <script src="js/angular.min.js"></script> -->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous">
     <link rel="stylesheet" href="css/skills.css"/>
     <script src="http://code.angularjs.org/1.4.7/angular.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.js"></script>
-    <title>SkillClusters with Angular</title>
+    <script src="postscribe-master/htmlParser/htmlParser.js"></script>
+    <script src="postscribe-master/postscribe.js"></script>
+    <title>SkillClusters with Angular: page {{ pageTitle }}</title>
 </head>
 
 <body ng-controller="MainController">
@@ -30,14 +33,14 @@
 
 <div class="container">
     <div class="jumbotron">
-        <h1 class="greet">Welcome to SkillClusters!</h1>
-        <h4>This application parses software developer job ads and determines, for each technical skill keyword (e.g.
+        <h3 class="greet">Welcome to SkillClusters!</h3>
+        <small>This application parses software developer job ads and determines, for each technical skill keyword (e.g.
             Python, Java, C#, Javascript, etc)
             what other skills are most likely to go with it (e.g. for Python it would be Django, Flask, etc.) So when
             one is preparing for a software development interview, one could know what other areas they need to study to
             answer the most likely interview questions.
-        </h4>
-	<h4>Click on each skill keyword to see what other skills go with it and how often. Click again on the keyword to close it.</h4>
+        </small>
+	<small>Click on each skill keyword to see what other skills go with it and how often. Click again on the keyword to close it.</small>
     </div>
 </div>
 <!--End Jumbotron-->
@@ -52,11 +55,11 @@
             <div dir-paginate="skill in skills | filter:{primary_term:searchTerm} | itemsPerPage: primarySkillsPerPage" current-page="pagination.current">
                 <li class="primary">
                     <a class="btn btn-info btn-md" href="none"
-                       ng-click="setShowAssociatedSkills($index); $event.stopPropagation()">{{ skill.primary_term }}</a>
+                       ng-click="setShowAssociatedSkills((pagination.current - 1) * primarySkillsPerPage + $index, skill.primary_term); $event.stopPropagation()">{{ skill.primary_term }}</a>
 
-                    <div ng-show="showAssociatedSkills[$index]">
+                    <div ng-show="showAssociatedSkills[(pagination.current - 1) * primarySkillsPerPage + $index]">
                     <span class="second" ng-repeat="secondary_skill in skill.associated_terms">
-                        <span id="smBtn" class="btn btn-sm" ng-style="secondarySkillStyle[(pagination.current - 1) * primarySkillsPerPage + $parent.$index][$index]" ng-click="showJobSnippets(skill.primary_term, secondary_skill)">{{ secondary_skill.secondary_term }} <br/><span style="font-size: 75%">{{ ratiosToDisplay[(pagination.current - 1) * primarySkillsPerPage + $parent.$index][$index] }}</span></span>
+                        <span id="smBtn" class="btn btn-sm" ng-style="secondarySkillStyle[(pagination.current - 1) * primarySkillsPerPage + $parent.$index][$index]" ng-click="showJobSnippets(skill.primary_term, secondary_skill)"><i ng-class="iconService.associatedSkillsIcons[secondary_skill.secondary_term]"></i>&nbsp;&nbsp;{{ secondary_skill.secondary_term }} <br/><span style="font-size: 75%">{{ ratiosToDisplay[(pagination.current - 1) * primarySkillsPerPage + $parent.$index][$index] }}</span></span>
                     </span>
                     </div>
                     <br><br>
@@ -70,6 +73,9 @@
 <script src="js/app.js"></script>
 <!-- Controller -->
 <script src="js/controller.js"></script>
+<script src="js/iconService.js"></script>
 <script src="js/scModalService.js"></script>
+<script src="js/statCounterService.js"></script>
+<div id="statcounterInd"></div>
 </body>
 </html>
